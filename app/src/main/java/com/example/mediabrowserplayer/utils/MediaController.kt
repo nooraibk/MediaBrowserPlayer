@@ -7,6 +7,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.services.MediaService
 import java.util.WeakHashMap
@@ -30,9 +31,23 @@ object MediaController {
                 Context.BIND_AUTO_CREATE
         )){
             connectionMap[contextWrapper] = binder
+            Log.d(TAG, "onServiceBinded")
+
             return ServiceToken(contextWrapper)
         }
         return null
+    }
+
+    fun unbindFromService(token: ServiceToken?) {
+        if (token == null) {
+            return
+        }
+        val mContextWrapper = token.mWrapperContext
+        val mBinder = connectionMap.remove(mContextWrapper) ?: return
+        mContextWrapper.unbindService(mBinder)
+        if (connectionMap.isEmpty()) {
+            musicService = null
+        }
     }
 
     fun playTrack(track : Track){
@@ -43,11 +58,13 @@ object MediaController {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaService.MusicBinder
             musicService = binder.service
+            Log.d(TAG, "onServiceConnected")
             callback?.onServiceConnected(name, service)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             callback?.onServiceDisconnected(name)
+            Log.d(TAG, "onServiceDisconnected")
             musicService = null
         }
 
