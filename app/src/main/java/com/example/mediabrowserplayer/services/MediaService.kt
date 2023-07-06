@@ -1,8 +1,10 @@
 package com.example.mediabrowserplayer.services
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -29,6 +31,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private var tracksList = TracksList.tracks
     private var currentTrackIndex = 0
 
+    private val iBinder = MusicBinder()
 
     override fun onGetRoot(
         clientPackageName: String,
@@ -69,20 +72,20 @@ class MediaService : MediaBrowserServiceCompat() {
                 // check player play back state
                 Player.STATE_READY -> {
 //                    sendBroadcastOnChange(PLAYER_STATE_READY)
-                    playTrack(currentTrack())
+                    Log.d(TAG, "Player started playback")
                 }
 
                 Player.STATE_ENDED -> {
-                    Log.d("MediaBrowserPlayer", "Player has stopped")
+                    Log.d(TAG, "Player has stopped")
                 }
 
                 Player.STATE_BUFFERING -> {
 //                    sendBroadcastOnChange(PLAYER_STATE_BUFFERING)
-                    Log.d("MediaBrowserPlayer", "Player is buffering")
+                    Log.d(TAG, "Player is buffering")
                 }
 
                 Player.STATE_IDLE -> {
-                    Log.d("MediaBrowserPlayer", "Player is idle")
+                    Log.d(TAG, "Player is idle")
                 }
 
 
@@ -164,6 +167,9 @@ class MediaService : MediaBrowserServiceCompat() {
         this.tracksList = tracks
     }
 
+    override fun onBind(intent: Intent?): IBinder {
+        return iBinder
+    }
 
     inner class MusicBinder : Binder() {
         val service : MediaService

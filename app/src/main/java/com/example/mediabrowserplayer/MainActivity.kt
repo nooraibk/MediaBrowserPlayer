@@ -33,6 +33,17 @@ class MainActivity : BaseActivity() {
 //
         btnPlay.setOnClickListener {
 //            mediaBrowser.connect()
+            MediaController.playTrack(TracksList.tracks[1])
+        }
+
+        btnNext.setOnClickListener {
+//            mediaBrowser.connect()
+            MediaController.playTrack(TracksList.tracks[0])
+        }
+
+        btnPrevious.setOnClickListener {
+//            mediaBrowser.connect()
+            MediaController.playTrack(TracksList.tracks[2])
         }
     }
 

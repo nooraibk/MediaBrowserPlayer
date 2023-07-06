@@ -60,18 +60,17 @@ object MediaController {
 
     class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.d(TAG, "onServiceConnected")
             val binder = service as MediaService.MusicBinder
             musicService = binder.service
-            Log.d(TAG, "onServiceConnected")
             callback?.onServiceConnected(name, service)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            callback?.onServiceDisconnected(name)
             Log.d(TAG, "onServiceDisconnected")
+            callback?.onServiceDisconnected(name)
             musicService = null
         }
-
     }
 
     class ServiceToken internal constructor(internal var mWrapperContext : ContextWrapper)
