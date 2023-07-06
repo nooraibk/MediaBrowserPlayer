@@ -17,12 +17,16 @@ object MediaController {
     private val connectionMap = WeakHashMap<Context, ControllerServiceBinder>()
 
     fun bindToService(context: Context, callback: ServiceConnection) : ServiceToken?{
+        Log.d(TAG, "bindToService called")
         val realActivity = (context as Activity).parent ?: context
         val contextWrapper = ContextWrapper(realActivity)
         val intent = Intent(contextWrapper, MediaService::class.java)
         try {
+            Log.d(TAG, "Service Started")
             context.startService(intent)
-        }catch (ignored : IllegalStateException){}
+        }catch (ignored : IllegalStateException){
+            Log.d(TAG, "Service Exception")
+        }
         val binder = ControllerServiceBinder(callback)
 
         if (contextWrapper.bindService(

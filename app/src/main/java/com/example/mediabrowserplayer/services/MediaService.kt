@@ -12,6 +12,7 @@ import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.data.emptyTrack
+import com.example.mediabrowserplayer.utils.TAG
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -46,6 +47,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "Service Running")
         mediaSession = MediaSessionCompat(this, MediaService::class.java.simpleName)
         sessionToken = mediaSession?.sessionToken
         exoPlayer = ExoPlayer.Builder(this).build()
@@ -131,7 +133,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
             return tracksList[currentTrackIndex]
         } catch (e: Exception) {
-            Log.d("TAG", "${e.printStackTrace()} ")
+            Log.d(TAG, "${e.printStackTrace()} ")
             if (tracksList.isEmpty()) {
                 return emptyTrack()
             }

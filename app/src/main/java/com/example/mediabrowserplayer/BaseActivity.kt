@@ -35,8 +35,8 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
         serviceToken = MediaController.bindToService(this, object: ServiceConnection{
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                Log.d(TAG, "onServiceCallback before")
                 MediaController.playTrack(TracksList.tracks[0])
-                Log.d(TAG, "onServiceCallback")
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
