@@ -1,19 +1,26 @@
 package com.example.mediabrowserplayer.services
 
+import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.data.emptyTrack
+import com.example.mediabrowserplayer.notifications.PlayingNotification
+import com.example.mediabrowserplayer.notifications.PlayingNotificationClassic
+import com.example.mediabrowserplayer.notifications.PlayingNotificationImpl24
 import com.example.mediabrowserplayer.utils.TAG
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -25,19 +32,24 @@ import com.google.android.exoplayer2.util.Util
 
 class MediaService : MediaBrowserServiceCompat() {
 
-    private var mediaSession : MediaSessionCompat? = null
+    private var mediaSession : MediaSessionCompat? = null // Create a media session.
     private lateinit var exoPlayer : ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
     private var tracksList = TracksList.tracks
     private var currentTrackIndex = 0
-
     private val iBinder = MusicBinder()
+    private var playingNotification: PlayingNotification? = null
+    private var notificationManager: NotificationManager? = null
+
+    private fun initNotification() {
+        PlayingNotificationClassic.from(applicationContext, notificationManager!!)
+    }
 
     override fun onGetRoot(
         clientPackageName: String,
         clientUid: Int,
         rootHints: Bundle?
-    ): BrowserRoot? {
+    ): BrowserRoot {
         return BrowserRoot(getString(R.string.app_name), null)
     }
 
@@ -60,8 +72,13 @@ class MediaService : MediaBrowserServiceCompat() {
             mediaController = MediaControllerCompat(this@MediaService, sessionToken)
             isActive = true
             setCallback(mediaSessionCallback)
-
         }
+
+        notificationManager = getSystemService()
+        notificationManager?.notify(
+            PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
+        )
+        initNotification()
     }
 
     private val playerEventListener = object : Player.Listener {
@@ -88,7 +105,6 @@ class MediaService : MediaBrowserServiceCompat() {
                     Log.d(TAG, "Player is idle")
                 }
 
-
             }
         }
 
@@ -100,9 +116,14 @@ class MediaService : MediaBrowserServiceCompat() {
 
 
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onPlay() {
             playTrack(currentTrack())
+            // Start playback of your media content.
+            // Create your MediaStyle notification.
+            // Set the notification to ongoing.
 //            sendBroadcastOnChange(PLAY_STATE_CHANGED)
+
         }
 
         override fun onPause() {
@@ -148,6 +169,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun playTrack(track: Track) {
 
         val dataSourceFactory = DefaultDataSourceFactory(
@@ -161,6 +183,7 @@ class MediaService : MediaBrowserServiceCompat() {
         exoPlayer.setMediaSource(mediaSource)
         exoPlayer.prepare()
         exoPlayer.playWhenReady = true
+
     }
 
     fun setTracks(tracks:MutableList<Track>){
@@ -175,5 +198,4 @@ class MediaService : MediaBrowserServiceCompat() {
         val service : MediaService
             get() = this@MediaService
     }
-
 }

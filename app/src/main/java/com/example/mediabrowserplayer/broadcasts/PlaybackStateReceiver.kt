@@ -25,7 +25,6 @@ class PlaybackStateReceiver(activity: BaseActivity) : BroadcastReceiver() {
         val activity = reference.get()
         if (activity != null && action != null) {
             when (action) {
-                ACTION_PLAY -> activity
                 META_CHANGED -> activity.iPlayingMetaChangeEvent()
                 QUEUE_CHANGED -> activity.iPlayingQueueChangeEvent()
                 PLAY_STATE_CHANGED -> activity.iPlayStateChangeEvent()

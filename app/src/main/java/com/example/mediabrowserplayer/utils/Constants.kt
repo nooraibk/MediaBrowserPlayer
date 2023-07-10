@@ -2,6 +2,9 @@ package com.example.mediabrowserplayer.utils
 
 const val TAG = "MediaBrowserPlayerApp"
 const val PACKAGE_NAME = "com.example.mediabrowserplayer"
+const val CHANNEL_ID = "media style notification channel"
+const val NOTIFICATION_ID = 2
+
 const val ACTION_TOGGLE_PAUSE = "$PACKAGE_NAME.togglepause"
 const val ACTION_PLAY = "$PACKAGE_NAME.play"
 const val ACTION_PLAY_PLAYLIST = "$PACKAGE_NAME.play.playlist"

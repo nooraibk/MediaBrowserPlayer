@@ -50,7 +50,7 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
     override fun onDestroy() {
         super.onDestroy()
-//        MediaController.unbindFromService(serviceToken)
+        MediaController.unbindFromService(serviceToken)
     }
 
     override fun iSuccessfulConnectionEvent() {
@@ -109,7 +109,7 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
     }
 
     override fun iPlayerStateReady() {
-        TODO("Not yet implemented")
+        MediaController.playTrack(TracksList.tracks[1])
     }
 
     override fun iPlayerStateBuffering() {

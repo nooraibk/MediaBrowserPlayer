@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MediaBrowserPlayer</string>
+    <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
+    <string name="playing_notification_name">Playing notification</string>
+    <string name="action_previous">Previous Track</string>
+    <string name="action_next">Next Track</string>
+    <string name="action_cancel">Cancel Track</string>
+    <string name="action_play_pause">Play/Pause Track</string>
 </resources>
