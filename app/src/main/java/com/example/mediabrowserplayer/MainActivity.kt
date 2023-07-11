@@ -1,11 +1,12 @@
 package com.example.mediabrowserplayer
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.widget.ImageView
-import com.example.mediabrowserplayer.data.TracksList
-import com.example.mediabrowserplayer.utils.MediaController
+import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
+
 
 class MainActivity : BaseActivity() {
 
@@ -21,15 +22,17 @@ class MainActivity : BaseActivity() {
         val btnPrevious : ImageView = findViewById(R.id.btnPrevious)
 
         btnPlay.setOnClickListener {
-            MediaController.playTrack(TracksList.tracks[1])
+//            MediaController.playTrack(TracksList.tracks[1])
+            val intent = Intent(PLAYER_STATE_READY)
+            sendBroadcast(intent)
         }
 
         btnNext.setOnClickListener {
-            MediaController.playTrack(TracksList.tracks[0])
+//            MediaController.playTrack(TracksList.tracks[0])
         }
 
         btnPrevious.setOnClickListener {
-            MediaController.playTrack(TracksList.tracks[2])
+//            MediaController.playTrack(TracksList.tracks[2])
         }
     }
 }

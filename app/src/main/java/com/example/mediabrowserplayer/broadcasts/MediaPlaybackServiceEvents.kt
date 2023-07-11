@@ -1,15 +1,15 @@
 package com.example.mediabrowserplayer.broadcasts
 
 interface MediaPlaybackServiceEvents {
-    fun iSuccessfulConnectionEvent()
-    fun iDisconnectedEvent()
-    fun iPlayingQueueChangeEvent()
-    fun iFavChangeEvent()
-    fun iMediaStoreChangeEvent()
-    fun iRepeatModeChangeEvent()
-    fun iPlayStateChangeEvent()
-    fun iPlayingMetaChangeEvent()
-    fun iForYouChangeEvent()
-    fun iPlayerStateReady()
-    fun iPlayerStateBuffering()
+    fun isSuccessfulConnectionEvent()
+    fun isDisconnectedEvent()
+    fun isPlayingQueueChangeEvent()
+    fun isFavChangeEvent()
+    fun isMediaStoreChangeEvent()
+    fun isRepeatModeChangeEvent()
+    fun isPlayStateChangeEvent()
+    fun isPlayingMetaChangeEvent()
+    fun isForYouChangeEvent()
+    fun isPlayerStateReady()
+    fun isPlayerStateBuffering()
 }

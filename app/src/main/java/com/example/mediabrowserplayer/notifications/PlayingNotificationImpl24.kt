@@ -9,14 +9,16 @@ import android.content.Intent
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.text.parseAsHtml
 import androidx.media.app.NotificationCompat.MediaStyle
-import com.example.mediabrowserplayer.MainActivity
+import com.example.mediabrowserplayer.BaseActivity
 import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.services.MediaService
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
+import com.example.mediabrowserplayer.utils.TOGGLE_FAVORITE
 import com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_REWIND
 
 @SuppressLint("RestrictedApi")
@@ -26,7 +28,7 @@ class PlayingNotificationImpl24(
 ) : PlayingNotification(context) {
 
     init {
-        val action = Intent(context, MainActivity::class.java)
+        val action = Intent(context, BaseActivity::class.java)
 //        action.putExtra(MainActivity.EXPAND_PANEL, PreferenceUtil.isExpandPanel)
         action.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         val clickIntent =
@@ -63,7 +65,6 @@ class PlayingNotificationImpl24(
             context.getString(R.string.action_cancel),
             retrievePlaybackAction(ACTION_QUIT)
         )
-        
         setSmallIcon(R.drawable.ic_notification)
         setContentIntent(clickIntent)
         setDeleteIntent(deleteIntent)
@@ -85,10 +86,9 @@ class PlayingNotificationImpl24(
     }
 
     override fun updateMetadata(track: Track, onUpdate: () -> Unit) {
-//        setContentTitle(("<b>" + track.title + "</b>").parseAsHtml())
-//        setContentText(track.artistName)
-//        setSubText(("<b>" + track.albumName + "</b>").parseAsHtml())
-        
+        setContentTitle(("<b>" + track.title + "</b>").parseAsHtml())
+        setContentText(track.title)
+        setSubText(("<b>" + track.title + "</b>").parseAsHtml())
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
@@ -101,8 +101,30 @@ class PlayingNotificationImpl24(
         ).build()
     }
 
+    private fun buildFavoriteAction(isFavorite: Boolean): NotificationCompat.Action {
+        val favoriteResId =
+            if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+        return NotificationCompat.Action.Builder(
+            favoriteResId,
+            context.getString(R.string.action_toggle_favorite),
+            retrievePlaybackAction(TOGGLE_FAVORITE)
+        ).build()
+    }
+
     override fun setPlaying(isPlaying: Boolean) {
         mActions[1] = buildPlayAction(isPlaying)
+    }
+
+    override fun updateFavorite(Track: Track, onUpdate: () -> Unit) {
+//        GlobalScope.launch(Dispatchers.IO) {
+//            val isFavorite = MusicUtil.repository.isTrackFavorite(Track.id)
+//            withContext(Dispatchers.Main) {
+//                mActions[0] = buildFavoriteAction(isFavorite)
+//                onUpdate()
+//            }
+//        }
+//        mActions[0] = buildFavoriteAction(Track.isFav)
+//        onUpdate()
     }
 
     private fun retrievePlaybackAction(action: String): PendingIntent {

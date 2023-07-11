@@ -15,9 +15,13 @@ abstract class PlayingNotification(context: Context) :
 
     abstract fun setPlaying(isPlaying: Boolean)
 
+    abstract fun updateFavorite(Track: Track, onUpdate: () -> Unit)
+
     companion object {
+        const val NOTIFICATION_CONTROLS_SIZE_MULTIPLIER = 1.0f
         internal const val NOTIFICATION_CHANNEL_ID = "playing_notification"
         const val NOTIFICATION_ID = 1
+
 
         @RequiresApi(26)
         fun createNotificationChannel(
@@ -34,6 +38,8 @@ abstract class PlayingNotification(context: Context) :
                 )
                 notificationChannel.description =
                     context.getString(R.string.playing_notification_description)
+                notificationChannel.enableLights(false)
+                notificationChannel.enableVibration(false)
                 notificationChannel.setShowBadge(false)
 
                 notificationManager.createNotificationChannel(notificationChannel)

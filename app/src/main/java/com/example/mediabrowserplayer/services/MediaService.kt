@@ -4,14 +4,12 @@ import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
@@ -19,9 +17,8 @@ import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.data.emptyTrack
 import com.example.mediabrowserplayer.notifications.PlayingNotification
-import com.example.mediabrowserplayer.notifications.PlayingNotificationClassic
-import com.example.mediabrowserplayer.notifications.PlayingNotificationImpl24
 import com.example.mediabrowserplayer.utils.TAG
+import com.example.mediabrowserplayer.notifications.PlayingNotificationImpl24
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -40,10 +37,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
-
-    private fun initNotification() {
-        PlayingNotificationClassic.from(applicationContext, notificationManager!!)
-    }
+//    private val mediaSessionCallback = MediaSessionCallback(applicationContext, this)
 
     override fun onGetRoot(
         clientPackageName: String,
@@ -78,7 +72,8 @@ class MediaService : MediaBrowserServiceCompat() {
         notificationManager?.notify(
             PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
         )
-        initNotification()
+        playingNotification = PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
+
     }
 
     private val playerEventListener = object : Player.Listener {
@@ -88,7 +83,6 @@ class MediaService : MediaBrowserServiceCompat() {
 
                 // check player play back state
                 Player.STATE_READY -> {
-//                    sendBroadcastOnChange(PLAYER_STATE_READY)
                     Log.d(TAG, "Player started playback")
                 }
 
@@ -104,7 +98,6 @@ class MediaService : MediaBrowserServiceCompat() {
                 Player.STATE_IDLE -> {
                     Log.d(TAG, "Player is idle")
                 }
-
             }
         }
 
@@ -116,7 +109,6 @@ class MediaService : MediaBrowserServiceCompat() {
 
 
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
-        @RequiresApi(Build.VERSION_CODES.O)
         override fun onPlay() {
             playTrack(currentTrack())
             // Start playback of your media content.
@@ -169,7 +161,6 @@ class MediaService : MediaBrowserServiceCompat() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun playTrack(track: Track) {
 
         val dataSourceFactory = DefaultDataSourceFactory(

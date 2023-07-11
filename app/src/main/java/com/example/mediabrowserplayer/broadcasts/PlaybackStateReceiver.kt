@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.mediabrowserplayer.BaseActivity
-import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.FAV_CHANGED
 import com.example.mediabrowserplayer.utils.FOR_YOU_CHANGED
 import com.example.mediabrowserplayer.utils.META_CHANGED
@@ -25,15 +24,15 @@ class PlaybackStateReceiver(activity: BaseActivity) : BroadcastReceiver() {
         val activity = reference.get()
         if (activity != null && action != null) {
             when (action) {
-                META_CHANGED -> activity.iPlayingMetaChangeEvent()
-                QUEUE_CHANGED -> activity.iPlayingQueueChangeEvent()
-                PLAY_STATE_CHANGED -> activity.iPlayStateChangeEvent()
-                REPEAT_MODE_CHANGED -> activity.iRepeatModeChangeEvent()
-                FOR_YOU_CHANGED -> activity.iForYouChangeEvent()
-                RELOAD_MEDIA -> activity.iMediaStoreChangeEvent()
-                FAV_CHANGED -> activity.iFavChangeEvent()
-                PLAYER_STATE_READY -> activity.iPlayerStateReady()
-                PLAYER_STATE_BUFFERING -> activity.iPlayerStateBuffering()
+                META_CHANGED -> activity.isPlayingMetaChangeEvent()
+                QUEUE_CHANGED -> activity.isPlayingQueueChangeEvent()
+                PLAY_STATE_CHANGED -> activity.isPlayStateChangeEvent()
+                REPEAT_MODE_CHANGED -> activity.isRepeatModeChangeEvent()
+                FOR_YOU_CHANGED -> activity.isForYouChangeEvent()
+                RELOAD_MEDIA -> activity.isMediaStoreChangeEvent()
+                FAV_CHANGED -> activity.isFavChangeEvent()
+                PLAYER_STATE_READY -> activity.isPlayerStateReady()
+                PLAYER_STATE_BUFFERING -> activity.isPlayerStateBuffering()
             }
         }
     }

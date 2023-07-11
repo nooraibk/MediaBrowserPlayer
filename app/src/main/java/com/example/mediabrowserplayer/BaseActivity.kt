@@ -25,10 +25,11 @@ import com.example.mediabrowserplayer.utils.TAG
 
 abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
-    private var serviceToken: MediaController.ServiceToken? = null
-    private val playbackServiceEvents:ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
+    private var serviceToken : MediaController.ServiceToken? = null
+    private val playbackServiceEvents : ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
     private lateinit var playbackStateReceiver : PlaybackStateReceiver
     private var playbackReceiverRegistered = false
+    private var eventsListener: MediaPlaybackServiceEvents? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +37,11 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         serviceToken = MediaController.bindToService(this, object: ServiceConnection{
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 Log.d(TAG, "onServiceCallback")
+                this@BaseActivity.isSuccessfulConnectionEvent()
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
+
             }
         })
 
@@ -53,7 +56,7 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         MediaController.unbindFromService(serviceToken)
     }
 
-    override fun iSuccessfulConnectionEvent() {
+    override fun isSuccessfulConnectionEvent() {
         if (!playbackReceiverRegistered) {
             playbackStateReceiver = PlaybackStateReceiver(this)
             val filter = IntentFilter()
@@ -72,47 +75,47 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         }
 
         for (listener in playbackServiceEvents) {
-            listener.iSuccessfulConnectionEvent()
+            listener.isSuccessfulConnectionEvent()
         }
     }
 
-    override fun iDisconnectedEvent() {
+    override fun isDisconnectedEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iPlayingQueueChangeEvent() {
+    override fun isPlayingQueueChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iFavChangeEvent() {
+    override fun isFavChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iMediaStoreChangeEvent() {
+    override fun isMediaStoreChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iRepeatModeChangeEvent() {
+    override fun isRepeatModeChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iPlayStateChangeEvent() {
+    override fun isPlayStateChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iPlayingMetaChangeEvent() {
+    override fun isPlayingMetaChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iForYouChangeEvent() {
+    override fun isForYouChangeEvent() {
         TODO("Not yet implemented")
     }
 
-    override fun iPlayerStateReady() {
+    override fun isPlayerStateReady() {
         MediaController.playTrack(TracksList.tracks[1])
     }
 
-    override fun iPlayerStateBuffering() {
+    override fun isPlayerStateBuffering() {
         TODO("Not yet implemented")
     }
 
