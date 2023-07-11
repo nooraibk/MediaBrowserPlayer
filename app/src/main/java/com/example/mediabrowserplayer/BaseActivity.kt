@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediabrowserplayer.broadcasts.MediaPlaybackServiceEvents
 import com.example.mediabrowserplayer.broadcasts.PlaybackStateReceiver
-import com.example.mediabrowserplayer.data.TracksList
+import com.example.mediabrowserplayer.core.data.TracksList
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.FAV_CHANGED
 import com.example.mediabrowserplayer.utils.FOR_YOU_CHANGED
@@ -100,7 +100,7 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
     }
 
     override fun isPlayStateChangeEvent() {
-        TODO("Not yet implemented")
+
     }
 
     override fun isPlayingMetaChangeEvent() {

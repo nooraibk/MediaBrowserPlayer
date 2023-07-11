@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.notifications
+package com.example.mediabrowserplayer.core.notifications
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
@@ -8,13 +8,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.text.parseAsHtml
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.example.mediabrowserplayer.BaseActivity
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.data.Track
-import com.example.mediabrowserplayer.services.MediaService
+import com.example.mediabrowserplayer.core.data.Track
+import com.example.mediabrowserplayer.core.services.MediaService
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
@@ -85,10 +86,33 @@ class PlayingNotificationImpl24(
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
     }
 
+    private fun getCombinedRemoteViews(collapsed: Boolean, track: Track): RemoteViews {
+        val remoteViews = RemoteViews(
+            context.packageName,
+            if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
+        )
+        remoteViews.setTextViewText(
+            R.id.appName,
+            context.getString(R.string.app_name) + " • " + track.title
+        )
+        remoteViews.setTextViewText(R.id.title, track.title)
+        remoteViews.setTextViewText(R.id.subtitle, track.title)
+//        linkButtons(remoteViews)
+        return remoteViews
+    }
+
     override fun updateMetadata(track: Track, onUpdate: () -> Unit) {
+        val notificationLayout = getCombinedRemoteViews(true, track)
+        val notificationLayoutBig = getCombinedRemoteViews(false, track)
+
         setContentTitle(("<b>" + track.title + "</b>").parseAsHtml())
         setContentText(track.title)
         setSubText(("<b>" + track.title + "</b>").parseAsHtml())
+
+        setCustomContentView(notificationLayout)
+        setCustomBigContentView(notificationLayoutBig)
+        setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
+        setOngoing(true)
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {

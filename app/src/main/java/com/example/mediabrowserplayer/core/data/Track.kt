@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.data
+package com.example.mediabrowserplayer.core.data
 
 data class Track(
     val url : String,

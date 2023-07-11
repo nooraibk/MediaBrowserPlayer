@@ -2,7 +2,7 @@ package com.example.mediabrowserplayer.utils
 
 import android.content.Context
 import android.support.v4.media.session.MediaSessionCompat
-import com.example.mediabrowserplayer.services.MediaService
+import com.example.mediabrowserplayer.core.services.MediaService
 
 class MediaSessionCallback(private val context: Context, private val musicService: MediaService) :
     MediaSessionCompat.Callback() {

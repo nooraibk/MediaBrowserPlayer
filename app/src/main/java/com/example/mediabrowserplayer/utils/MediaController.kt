@@ -8,8 +8,8 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
-import com.example.mediabrowserplayer.data.Track
-import com.example.mediabrowserplayer.services.MediaService
+import com.example.mediabrowserplayer.core.data.Track
+import com.example.mediabrowserplayer.core.services.MediaService
 import java.util.WeakHashMap
 
 object MediaController {
@@ -57,6 +57,7 @@ object MediaController {
     fun playTrack(track : Track){
         musicService?.playTrack(track)
     }
+
 
     class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {

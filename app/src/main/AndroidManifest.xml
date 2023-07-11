@@ -27,7 +27,7 @@
         </activity>
 
         <service
-            android:name=".services.MediaService"
+            android:name=".core.services.MediaService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback">

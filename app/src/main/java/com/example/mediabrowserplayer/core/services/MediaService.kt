@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.services
+package com.example.mediabrowserplayer.core.services
 
 import android.app.NotificationManager
 import android.content.Intent
@@ -13,12 +13,13 @@ import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.data.Track
-import com.example.mediabrowserplayer.data.TracksList
-import com.example.mediabrowserplayer.data.emptyTrack
-import com.example.mediabrowserplayer.notifications.PlayingNotification
+import com.example.mediabrowserplayer.core.data.Track
+import com.example.mediabrowserplayer.core.data.TracksList
+import com.example.mediabrowserplayer.core.data.emptyTrack
+import com.example.mediabrowserplayer.core.notifications.PlayingNotification
 import com.example.mediabrowserplayer.utils.TAG
-import com.example.mediabrowserplayer.notifications.PlayingNotificationImpl24
+import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24
+import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -37,6 +38,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
+
 //    private val mediaSessionCallback = MediaSessionCallback(applicationContext, this)
 
     override fun onGetRoot(
@@ -69,11 +71,10 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         notificationManager = getSystemService()
+        playingNotification = PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
         notificationManager?.notify(
             PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
         )
-        playingNotification = PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
-
     }
 
     private val playerEventListener = object : Player.Listener {
@@ -174,7 +175,8 @@ class MediaService : MediaBrowserServiceCompat() {
         exoPlayer.setMediaSource(mediaSource)
         exoPlayer.prepare()
         exoPlayer.playWhenReady = true
-
+        val intent = Intent(PLAYER_STATE_READY)
+        sendBroadcast(intent)
     }
 
     fun setTracks(tracks:MutableList<Track>){
