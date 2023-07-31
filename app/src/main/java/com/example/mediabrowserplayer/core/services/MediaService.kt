@@ -15,9 +15,9 @@ import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.core.data.Track
-import com.example.mediabrowserplayer.core.data.TracksList
-import com.example.mediabrowserplayer.core.data.emptyTrack
+import com.example.mediabrowserplayer.data.Track
+import com.example.mediabrowserplayer.data.TracksList
+import com.example.mediabrowserplayer.data.emptyTrack
 import com.example.mediabrowserplayer.core.notifications.PlayingNotification
 import com.example.mediabrowserplayer.utils.TAG
 import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24

@@ -14,7 +14,7 @@ import androidx.core.text.parseAsHtml
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.example.mediabrowserplayer.BaseActivity
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.core.data.Track
+import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.core.services.MediaService
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP

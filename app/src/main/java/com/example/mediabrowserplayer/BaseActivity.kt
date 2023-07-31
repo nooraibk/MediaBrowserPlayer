@@ -7,9 +7,10 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
 import com.example.mediabrowserplayer.core.broadcasts.PlaybackStateReceiver
-import com.example.mediabrowserplayer.core.data.TracksList
+import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.FAV_CHANGED
 import com.example.mediabrowserplayer.utils.FOR_YOU_CHANGED
@@ -25,6 +26,7 @@ import com.example.mediabrowserplayer.utils.TAG
 
 abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
+    lateinit var viewModel : MainViewModel
     private var serviceToken : MediaController.ServiceToken? = null
     private val playbackServiceEvents : ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
     private lateinit var playbackStateReceiver : PlaybackStateReceiver
@@ -33,6 +35,9 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        Log.d("LogginViewModel", viewModel.viewModelInstance)
 
         serviceToken = MediaController.bindToService(this, object: ServiceConnection{
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -95,19 +100,11 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         TODO("Not yet implemented")
     }
 
-    override fun isRepeatModeChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
     override fun isPlayStateChangeEvent() {
 
     }
 
     override fun isPlayingMetaChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isForYouChangeEvent() {
         TODO("Not yet implemented")
     }
 

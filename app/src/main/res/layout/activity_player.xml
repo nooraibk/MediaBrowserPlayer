@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlayerActivity">
+
+    <ImageView
+        android:id="@+id/btnPlay"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_play"
+        app:tint="@color/black"
+        app:layout_constraintBottom_toTopOf="@+id/trackProgress"
+        app:layout_constraintEnd_toStartOf="@+id/btnNext"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnPrevious" />
+
+    <ImageView
+        android:id="@+id/btnNext"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_next"
+        app:tint="@color/black"
+        app:layout_constraintBottom_toBottomOf="@+id/btnPlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnPlay" />
+
+    <ImageView
+        android:id="@+id/btnPrevious"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_previous"
+        app:tint="@color/black"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlay"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnPlay" />
+
+    <ImageView
+        android:id="@+id/btnStop"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_stop"
+        android:visibility="gone"
+        app:tint="@color/black"
+        app:layout_constraintBottom_toBottomOf="@+id/btnPlay"
+        app:layout_constraintEnd_toEndOf="@+id/btnPlay"
+        app:layout_constraintStart_toStartOf="@+id/btnPlay" />
+
+    <TextView
+        android:id="@+id/trackTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Nature Sound - No Copyright Tracks"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trackThumbnail" />
+
+    <ImageView
+        android:id="@+id/trackThumbnail"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="180dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_app" />
+
+    <ImageView
+        android:id="@+id/volumeDown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/volumeProgress"
+        app:layout_constraintEnd_toStartOf="@+id/volumeProgress"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/volumeProgress"
+        app:srcCompat="@drawable/ic_volume_down" />
+
+    <ImageView
+        android:id="@+id/volumeUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/volumeProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/volumeProgress"
+        app:layout_constraintTop_toTopOf="@+id/volumeProgress"
+        app:srcCompat="@drawable/ic_volume_up" />
+
+    <SeekBar
+        android:id="@+id/volumeProgress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/btnPlay"
+        app:layout_constraintEnd_toStartOf="@+id/volumeUp"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/volumeDown" />
+
+    <SeekBar
+        android:id="@+id/trackProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/timeStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/timeStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="00:00"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/timeFinish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="34:45"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

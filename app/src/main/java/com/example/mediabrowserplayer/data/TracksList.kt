@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.core.data
+package com.example.mediabrowserplayer.data
 
 object TracksList {
     val tracks = mutableListOf<Track>()

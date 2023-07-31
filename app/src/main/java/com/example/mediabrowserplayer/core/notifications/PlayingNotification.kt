@@ -6,7 +6,7 @@ import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.core.data.Track
+import com.example.mediabrowserplayer.data.Track
 
 abstract class PlayingNotification(context: Context) :
     NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID) {

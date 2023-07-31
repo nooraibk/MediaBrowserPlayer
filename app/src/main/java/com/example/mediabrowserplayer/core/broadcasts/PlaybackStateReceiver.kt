@@ -27,8 +27,6 @@ class PlaybackStateReceiver(activity: BaseActivity) : BroadcastReceiver() {
                 META_CHANGED -> activity.isPlayingMetaChangeEvent()
                 QUEUE_CHANGED -> activity.isPlayingQueueChangeEvent()
                 PLAY_STATE_CHANGED -> activity.isPlayStateChangeEvent()
-                REPEAT_MODE_CHANGED -> activity.isRepeatModeChangeEvent()
-                FOR_YOU_CHANGED -> activity.isForYouChangeEvent()
                 RELOAD_MEDIA -> activity.isMediaStoreChangeEvent()
                 FAV_CHANGED -> activity.isFavChangeEvent()
                 PLAYER_STATE_READY -> activity.isPlayerStateReady()
