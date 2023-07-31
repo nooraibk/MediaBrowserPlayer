@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.broadcasts
+package com.example.mediabrowserplayer.core.broadcasts
 
 interface MediaPlaybackServiceEvents {
     fun isSuccessfulConnectionEvent()

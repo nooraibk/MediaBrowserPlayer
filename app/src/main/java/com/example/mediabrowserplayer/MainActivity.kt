@@ -24,7 +24,7 @@ class MainActivity : BaseActivity() {
         val btnPrevious : ImageView = findViewById(R.id.btnPrevious)
 
         btnPlay.setOnClickListener {
-            MediaController.playTrack(TracksList.tracks[1])
+            MediaController.playTrack(TracksList.tracks[2])
 
         }
 

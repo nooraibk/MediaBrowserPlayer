@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer.broadcasts
+package com.example.mediabrowserplayer.core.broadcasts
 
 import android.content.BroadcastReceiver
 import android.content.Context

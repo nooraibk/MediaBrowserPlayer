@@ -2,8 +2,10 @@ package com.example.mediabrowserplayer.core.services
 
 import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
@@ -19,6 +21,7 @@ import com.example.mediabrowserplayer.core.data.emptyTrack
 import com.example.mediabrowserplayer.core.notifications.PlayingNotification
 import com.example.mediabrowserplayer.utils.TAG
 import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24
+import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -30,14 +33,16 @@ import com.google.android.exoplayer2.util.Util
 
 class MediaService : MediaBrowserServiceCompat() {
 
-    private var mediaSession : MediaSessionCompat? = null // Create a media session.
-    private lateinit var exoPlayer : ExoPlayer
+    private var mediaSession: MediaSessionCompat? = null // Create a media session.
+    private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
     private var tracksList = TracksList.tracks
     private var currentTrackIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
+    private var isForeground = false
+    private var isPlaying = false
 
 //    private val mediaSessionCallback = MediaSessionCallback(applicationContext, this)
 
@@ -71,7 +76,8 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         notificationManager = getSystemService()
-        playingNotification = PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
+        playingNotification =
+            PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
         notificationManager?.notify(
             PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
         )
@@ -92,7 +98,7 @@ class MediaService : MediaBrowserServiceCompat() {
                 }
 
                 Player.STATE_BUFFERING -> {
-//                    sendBroadcastOnChange(PLAYER_STATE_BUFFERING)
+                    sendBroadcastOnChange(PLAYER_STATE_BUFFERING)
                     Log.d(TAG, "Player is buffering")
                 }
 
@@ -127,12 +133,12 @@ class MediaService : MediaBrowserServiceCompat() {
 
 
         override fun onSkipToNext() {
-
+            Log.d(TAG, "onSkipToNext: ")
         }
 
 
         override fun onSkipToPrevious() {
-
+            Log.d(TAG, "onSkipToPrevious: ")
         }
 
         override fun onSeekTo(pos: Long) {
@@ -162,6 +168,11 @@ class MediaService : MediaBrowserServiceCompat() {
 
     }
 
+    fun sendBroadcastOnChange(change: String){
+        val intent = Intent(change)
+        sendBroadcast(intent)
+    }
+
     fun playTrack(track: Track) {
 
         val dataSourceFactory = DefaultDataSourceFactory(
@@ -177,9 +188,28 @@ class MediaService : MediaBrowserServiceCompat() {
         exoPlayer.playWhenReady = true
         val intent = Intent(PLAYER_STATE_READY)
         sendBroadcast(intent)
+
+        if (!isForeground) {
+            isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    PlayingNotification.NOTIFICATION_ID,
+                    playingNotification!!.build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                )
+                true
+            } else {
+                startForeground(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
+                true
+            }
+        } else {
+            notificationManager?.notify(
+                PlayingNotification.NOTIFICATION_ID,
+                playingNotification!!.build()
+            )
+        }
     }
 
-    fun setTracks(tracks:MutableList<Track>){
+    fun setTracks(tracks: MutableList<Track>) {
         this.tracksList = tracks
     }
 
@@ -188,7 +218,7 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     inner class MusicBinder : Binder() {
-        val service : MediaService
+        val service: MediaService
             get() = this@MediaService
     }
 }

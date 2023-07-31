@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mediabrowserplayer.broadcasts.MediaPlaybackServiceEvents
-import com.example.mediabrowserplayer.broadcasts.PlaybackStateReceiver
+import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
+import com.example.mediabrowserplayer.core.broadcasts.PlaybackStateReceiver
 import com.example.mediabrowserplayer.core.data.TracksList
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.FAV_CHANGED
@@ -112,11 +112,10 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
     }
 
     override fun isPlayerStateReady() {
-        MediaController.playTrack(TracksList.tracks[1])
     }
 
     override fun isPlayerStateBuffering() {
-        TODO("Not yet implemented")
+
     }
 
     fun attachPlaybackEvents(listenerI: MediaPlaybackServiceEvents?) {
