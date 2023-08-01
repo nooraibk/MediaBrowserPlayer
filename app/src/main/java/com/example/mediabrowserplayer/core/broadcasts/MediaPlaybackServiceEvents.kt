@@ -10,4 +10,9 @@ interface MediaPlaybackServiceEvents {
     fun isPlayingMetaChangeEvent()
     fun isPlayerStateReady()
     fun isPlayerStateBuffering()
+    fun isMediaActionPlay()
+    fun isMediaActionStop()
+    fun isMediaActionPause()
+    fun isMediaActionSkipToNext()
+    fun isMediaActionSkipToPrevious()
 }

@@ -16,12 +16,19 @@ import androidx.core.content.getSystemService
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
-import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.data.emptyTrack
 import com.example.mediabrowserplayer.core.notifications.PlayingNotification
 import com.example.mediabrowserplayer.utils.TAG
 import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24
+import com.example.mediabrowserplayer.data.TracksList
+import com.example.mediabrowserplayer.utils.ACTION_PAUSE
+import com.example.mediabrowserplayer.utils.ACTION_PLAY
+import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
+import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_PREVIOUS
+import com.example.mediabrowserplayer.utils.ACTION_STOP
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
+import com.example.mediabrowserplayer.utils.PLAYER_STATE_ENDED
+import com.example.mediabrowserplayer.utils.PLAYER_STATE_IDLE
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -36,7 +43,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private var mediaSession: MediaSessionCompat? = null // Create a media session.
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
-    private var tracksList = ArrayList<Track>()
+    var tracksList = TracksList.tracks
     private var currentTrackIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
@@ -59,6 +66,15 @@ class MediaService : MediaBrowserServiceCompat() {
         result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
         result.sendResult(mutableListOf())
+    }
+
+    override fun onBind(intent: Intent?): IBinder {
+        return iBinder
+    }
+
+    inner class MusicBinder : Binder() {
+        val service: MediaService
+            get() = this@MediaService
     }
 
     override fun onCreate() {
@@ -90,12 +106,12 @@ class MediaService : MediaBrowserServiceCompat() {
 
                 // check player play back state
                 Player.STATE_READY -> {
-                    isPlaying = true
+                    sendBroadcastOnChange(PLAYER_STATE_READY)
                     Log.d(TAG, "Player started playback")
                 }
 
                 Player.STATE_ENDED -> {
-                    isPlaying = false
+                    sendBroadcastOnChange(PLAYER_STATE_ENDED)
                     Log.d(TAG, "Player has stopped")
                 }
 
@@ -105,6 +121,7 @@ class MediaService : MediaBrowserServiceCompat() {
                 }
 
                 Player.STATE_IDLE -> {
+                    sendBroadcastOnChange(PLAYER_STATE_IDLE)
                     Log.d(TAG, "Player is idle")
                 }
             }
@@ -117,31 +134,86 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
+    var mediaPlayBackCounter = 0
 
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
-            playTrack(currentTrack())
-            // Start playback of your media content.
-            // Create your MediaStyle notification.
-            // Set the notification to ongoing.
-//            sendBroadcastOnChange(PLAY_STATE_CHANGED)
 
+            val dataSourceFactory = DefaultDataSourceFactory(
+                this@MediaService, Util.getUserAgent(this@MediaService, getString(R.string.app_name))
+            )
+            Log.d("TracksListOnMediaPlay", tracksList.toString())
+
+            val mediaItem = MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
+
+            val mediaSource =
+                ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+
+            if (!isPlaying){
+                exoPlayer.setMediaSource(mediaSource)
+                exoPlayer.prepare()
+                exoPlayer.playWhenReady = true
+                isPlaying = true
+            }
+
+            if (mediaPlayBackCounter == 0) {
+                sendBroadcast(Intent(ACTION_PLAY))
+                mediaPlayBackCounter += 1
+                Log.d("MediaPlayBackCounter", mediaPlayBackCounter.toString())
+            }
+
+            if (!isForeground) {
+                isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(
+                        PlayingNotification.NOTIFICATION_ID,
+                        playingNotification!!.build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                    )
+                    true
+                } else {
+                    startForeground(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
+                    true
+                }
+            } else {
+                notificationManager?.notify(
+                    PlayingNotification.NOTIFICATION_ID,
+                    playingNotification!!.build()
+                )
+            }
+
+        }
+
+        override fun onStop() {
+            isPlaying = false
+            exoPlayer.playWhenReady = false
+            exoPlayer.stop()
+            exoPlayer.release()
+            sendBroadcastOnChange(ACTION_STOP)
+            mediaPlayBackCounter = 0
+            super.onStop()
         }
 
         override fun onPause() {
+            isPlaying = false
             exoPlayer.playWhenReady = false
-//            sendBroadcastOnChange(PLAY_STATE_CHANGED)
-//            handleChanges()
+            exoPlayer.pause()
+            sendBroadcastOnChange(ACTION_PAUSE)
         }
-
 
         override fun onSkipToNext() {
-            Log.d(TAG, "onSkipToNext: ")
+            if (tracksList.size>=0){
+                currentTrackIndex += 1
+                onPlay()
+                sendBroadcastOnChange(ACTION_SKIP_TO_NEXT)
+            }
         }
 
-
         override fun onSkipToPrevious() {
-            Log.d(TAG, "onSkipToPrevious: ")
+            if (tracksList.size>=0){
+                currentTrackIndex -= 1
+                onPlay()
+                sendBroadcastOnChange(ACTION_SKIP_TO_PREVIOUS)
+            }
         }
 
         override fun onSeekTo(pos: Long) {
@@ -176,52 +248,41 @@ class MediaService : MediaBrowserServiceCompat() {
         sendBroadcast(intent)
     }
 
-    fun playTrack(track: Track) {
-
-        val dataSourceFactory = DefaultDataSourceFactory(
-            this, Util.getUserAgent(this, getString(R.string.app_name))
-        )
-        val mediaItem = MediaItem.Builder().setUri(Uri.parse(track.url)).build()
-
-        val mediaSource =
-            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
-
-        exoPlayer.setMediaSource(mediaSource)
-        exoPlayer.prepare()
-        exoPlayer.playWhenReady = true
-        val intent = Intent(PLAYER_STATE_READY)
-        sendBroadcast(intent)
-
-        if (!isForeground) {
-            isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(
-                    PlayingNotification.NOTIFICATION_ID,
-                    playingNotification!!.build(),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                )
-                true
-            } else {
-                startForeground(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
-                true
-            }
-        } else {
-            notificationManager?.notify(
-                PlayingNotification.NOTIFICATION_ID,
-                playingNotification!!.build()
-            )
+    fun playTrack() {
+        if (tracksList.size >= 0){
+            mediaSessionCallback.onPlay()
         }
     }
 
-    fun setTracks(tracks: MutableList<Track>) {
-        this.tracksList = tracks as ArrayList<Track>
+    fun stopPlayer() {
+        mediaSessionCallback.onStop()
     }
 
-    override fun onBind(intent: Intent?): IBinder {
-        return iBinder
+    fun pauseTrack() {
+        mediaSessionCallback.onPause()
     }
 
-    inner class MusicBinder : Binder() {
-        val service: MediaService
-            get() = this@MediaService
+    fun nextTrack(){
+        mediaSessionCallback.onSkipToNext()
     }
+
+    fun prevTrack(){
+        mediaSessionCallback.onSkipToPrevious()
+    }
+
+    fun setTracks(tracks: List<Track>) {
+//        tracks.forEach {
+//            if (tracksList.isEmpty() && !tracksList.contains(it)){
+//                tracksList.add(it)
+//            }
+//        }
+//        Log.d("TracksListOnSetTracks", tracksList.toString())
+    }
+
+    fun setCurrentTrackIndex(trackIndex: Int) {
+        if (trackIndex >= 0 && trackIndex <= tracksList.size){
+            currentTrackIndex = trackIndex
+        }
+    }
+
 }

@@ -17,7 +17,7 @@ import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.core.services.MediaService
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
-import com.example.mediabrowserplayer.utils.ACTION_SKIP
+import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
 import com.example.mediabrowserplayer.utils.TOGGLE_FAVORITE
 import com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_REWIND
@@ -59,7 +59,7 @@ class PlayingNotificationImpl24(
         val nextAction = NotificationCompat.Action(
             R.drawable.ic_next,
             context.getString(R.string.action_next),
-            retrievePlaybackAction(ACTION_SKIP)
+            retrievePlaybackAction(ACTION_SKIP_TO_NEXT)
         )
         val dismissAction = NotificationCompat.Action(
             R.drawable.ic_close,

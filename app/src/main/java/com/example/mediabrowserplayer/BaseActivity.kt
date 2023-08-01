@@ -26,18 +26,11 @@ import com.example.mediabrowserplayer.utils.TAG
 
 abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
-    lateinit var viewModel : MainViewModel
     private var serviceToken : MediaController.ServiceToken? = null
-    private val playbackServiceEvents : ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
-    private lateinit var playbackStateReceiver : PlaybackStateReceiver
-    private var playbackReceiverRegistered = false
-    private var eventsListener: MediaPlaybackServiceEvents? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        Log.d("LogginViewModel", viewModel.viewModelInstance)
 
         serviceToken = MediaController.bindToService(this, object: ServiceConnection{
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -55,75 +48,9 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         MediaController.unbindFromService(serviceToken)
     }
 
-    override fun isSuccessfulConnectionEvent() {
-        if (!playbackReceiverRegistered) {
-            playbackStateReceiver = PlaybackStateReceiver(this)
-            val filter = IntentFilter()
-            filter.addAction(ACTION_PLAY)
-            filter.addAction(PLAY_STATE_CHANGED)
-            filter.addAction(REPEAT_MODE_CHANGED)
-            filter.addAction(META_CHANGED)
-            filter.addAction(QUEUE_CHANGED)
-            filter.addAction(RELOAD_MEDIA)
-            filter.addAction(FAV_CHANGED)
-            filter.addAction(FOR_YOU_CHANGED)
-            filter.addAction(PLAYER_STATE_BUFFERING)
-            filter.addAction(PLAYER_STATE_READY)
-            registerReceiver(playbackStateReceiver, filter)
-            playbackReceiverRegistered = true
-        }
-
-        for (listener in playbackServiceEvents) {
-            listener.isSuccessfulConnectionEvent()
-        }
-    }
-
-    override fun isDisconnectedEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isPlayingQueueChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isFavChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isMediaStoreChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isPlayStateChangeEvent() {
-
-    }
-
-    override fun isPlayingMetaChangeEvent() {
-        TODO("Not yet implemented")
-    }
-
-    override fun isPlayerStateReady() {
-    }
-
-    override fun isPlayerStateBuffering() {
-
-    }
-
-    fun attachPlaybackEvents(listenerI: MediaPlaybackServiceEvents?) {
-        if (listenerI != null) {
-            playbackServiceEvents.add(listenerI)
-        }
-    }
-
-    fun detachPlaybackEvents(listenerI: MediaPlaybackServiceEvents?) {
-        if (listenerI != null) {
-            playbackServiceEvents.remove(listenerI)
-        }
-    }
 }

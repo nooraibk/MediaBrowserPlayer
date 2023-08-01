@@ -13,7 +13,7 @@ class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView
     private var data = ArrayList<Track>()
 
     interface ItemClickListener{
-        fun onItemClick(modelClass: Track)
+        fun onItemClick(trackIndex: Int)
     }
 
     class ExampleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -34,7 +34,7 @@ class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView
         holder.txtView.text = data[position].title
 
         holder.itemView.setOnClickListener {
-            listener.onItemClick(data[position])
+            listener.onItemClick(position)
         }
     }
 

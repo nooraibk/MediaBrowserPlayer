@@ -54,11 +54,6 @@ object MediaController {
         }
     }
 
-    fun playTrack(track : Track){
-        musicService?.playTrack(track)
-    }
-
-
     class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(TAG, "onServiceConnected")
@@ -75,4 +70,33 @@ object MediaController {
     }
 
     class ServiceToken internal constructor(internal var mWrapperContext : ContextWrapper)
+
+    fun playTrack(){
+        musicService?.playTrack()
+    }
+
+    fun stopPlayer(){
+        musicService?.stopPlayer()
+    }
+
+    fun pauseTrack(){
+        musicService?.pauseTrack()
+    }
+
+    fun playNextTrack(){
+        musicService?.nextTrack()
+    }
+
+    fun playPreviousTrack(){
+        musicService?.prevTrack()
+    }
+
+    fun setTracksQueue(tracks : List<Track>){
+        musicService?.setTracks(tracks)
+    }
+
+    fun setCurrentTrack(index : Int){
+        musicService?.setCurrentTrackIndex(index)
+    }
+
 }
