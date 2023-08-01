@@ -10,7 +10,7 @@ import com.example.mediabrowserplayer.data.Track
 
 class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView.Adapter<TracksRecyclerView.ExampleViewHolder>(){
 
-    private lateinit var data: ArrayList<Track>
+    private var data = ArrayList<Track>()
 
     interface ItemClickListener{
         fun onItemClick(modelClass: Track)

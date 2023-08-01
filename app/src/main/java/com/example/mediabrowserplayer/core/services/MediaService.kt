@@ -36,7 +36,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private var mediaSession: MediaSessionCompat? = null // Create a media session.
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
-    private var tracksList = TracksList.tracks
+    private var tracksList = ArrayList<Track>()
     private var currentTrackIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
@@ -90,10 +90,12 @@ class MediaService : MediaBrowserServiceCompat() {
 
                 // check player play back state
                 Player.STATE_READY -> {
+                    isPlaying = true
                     Log.d(TAG, "Player started playback")
                 }
 
                 Player.STATE_ENDED -> {
+                    isPlaying = false
                     Log.d(TAG, "Player has stopped")
                 }
 
@@ -109,6 +111,7 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         override fun onPlayerError(error: PlaybackException) {
+            isPlaying = false
             super.onPlayerError(error)
 
         }
@@ -210,7 +213,7 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     fun setTracks(tracks: MutableList<Track>) {
-        this.tracksList = tracks
+        this.tracksList = tracks as ArrayList<Track>
     }
 
     override fun onBind(intent: Intent?): IBinder {

@@ -1,6 +1,5 @@
 package com.example.mediabrowserplayer
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -21,6 +20,7 @@ class PlayerActivity : BaseActivity() {
         val btnStop : ImageView = findViewById(R.id.btnStop)
         val btnNext : ImageView = findViewById(R.id.btnNext)
         val btnPrevious : ImageView = findViewById(R.id.btnPrevious)
+
 
         btnPlay.setOnClickListener {
             MediaController.playTrack(TracksList.tracks[1])
