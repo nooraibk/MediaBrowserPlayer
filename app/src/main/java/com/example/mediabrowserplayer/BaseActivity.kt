@@ -1,33 +1,18 @@
 package com.example.mediabrowserplayer
 
 import android.content.ComponentName
-import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
-import com.example.mediabrowserplayer.core.broadcasts.PlaybackStateReceiver
-import com.example.mediabrowserplayer.data.TracksList
-import com.example.mediabrowserplayer.utils.ACTION_PLAY
-import com.example.mediabrowserplayer.utils.FAV_CHANGED
-import com.example.mediabrowserplayer.utils.FOR_YOU_CHANGED
-import com.example.mediabrowserplayer.utils.META_CHANGED
 import com.example.mediabrowserplayer.utils.MediaController
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
-import com.example.mediabrowserplayer.utils.PLAY_STATE_CHANGED
-import com.example.mediabrowserplayer.utils.QUEUE_CHANGED
-import com.example.mediabrowserplayer.utils.RELOAD_MEDIA
-import com.example.mediabrowserplayer.utils.REPEAT_MODE_CHANGED
 import com.example.mediabrowserplayer.utils.TAG
 
 abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
     private var serviceToken : MediaController.ServiceToken? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,25 +44,11 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
     override fun isDisconnectedEvent() {
     }
 
-    override fun isPlayingQueueChangeEvent() {
-    }
-
-    override fun isFavChangeEvent() {
-    }
-
-    override fun isMediaStoreChangeEvent() {
-    }
-
-    override fun isPlayStateChangeEvent() {
-    }
-
     override fun isPlayingMetaChangeEvent() {
+
     }
 
-    override fun isPlayerStateReady() {
-    }
-
-    override fun isPlayerStateBuffering() {
+    override fun isPlayingQueueChangeEvent() {
     }
 
     override fun isMediaActionPlay() {
@@ -93,6 +64,24 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
     }
 
     override fun isMediaActionSkipToPrevious() {
+    }
+
+    override fun isMediaActionQuit() {
+    }
+
+    override fun isPlayStateChangeEvent() {
+    }
+
+    override fun isPlayerStateBuffering() {
+    }
+
+    override fun isPlayerStateReady() {
+    }
+
+    override fun isPlayerStateIdle() {
+    }
+
+    override fun isPlayerStateEnded() {
     }
 
 }

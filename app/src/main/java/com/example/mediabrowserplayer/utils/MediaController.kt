@@ -13,7 +13,7 @@ import com.example.mediabrowserplayer.core.services.MediaService
 import java.util.WeakHashMap
 
 object MediaController {
-    var musicService: MediaService? = null
+    var mediaService: MediaService? = null
     private val connectionMap = WeakHashMap<Context, ControllerServiceBinder>()
 
     fun bindToService(context: Context, callback: ServiceConnection) : ServiceToken?{
@@ -50,7 +50,7 @@ object MediaController {
         val mBinder = connectionMap.remove(mContextWrapper) ?: return
         mContextWrapper.unbindService(mBinder)
         if (connectionMap.isEmpty()) {
-            musicService = null
+            mediaService = null
         }
     }
 
@@ -58,45 +58,52 @@ object MediaController {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(TAG, "onServiceConnected")
             val binder = service as MediaService.MusicBinder
-            musicService = binder.service
+            mediaService = binder.service
             callback?.onServiceConnected(name, service)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.d(TAG, "onServiceDisconnected")
             callback?.onServiceDisconnected(name)
-            musicService = null
+            mediaService = null
         }
     }
 
     class ServiceToken internal constructor(internal var mWrapperContext : ContextWrapper)
 
     fun playTrack(){
-        musicService?.playTrack()
+        mediaService?.playTrack()
     }
 
     fun stopPlayer(){
-        musicService?.stopPlayer()
+        mediaService?.stopPlayer()
     }
 
     fun pauseTrack(){
-        musicService?.pauseTrack()
+        mediaService?.pauseTrack()
     }
 
     fun playNextTrack(){
-        musicService?.nextTrack()
+        mediaService?.nextTrack()
     }
 
     fun playPreviousTrack(){
-        musicService?.prevTrack()
+        mediaService?.prevTrack()
     }
 
     fun setTracksQueue(tracks : List<Track>){
-        musicService?.setTracks(tracks)
+        mediaService?.setTracks(tracks)
     }
 
     fun setCurrentTrack(index : Int){
-        musicService?.setCurrentTrackIndex(index)
+        mediaService?.setCurrentTrackIndex(index)
     }
 
+    fun getCurrentTrack() = mediaService?.currentTrack()
+
+    fun getSystemVolume() = mediaService?.liveSystemVolume
+
+    fun increaseVolume() = mediaService?.volumeUp()
+
+    fun decreaseVolume() = mediaService?.volumeDown()
 }

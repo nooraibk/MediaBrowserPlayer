@@ -16,6 +16,7 @@
 //import com.bumptech.glide.request.target.Target
 //import com.bumptech.glide.request.transition.Transition
 //import com.example.mediabrowserplayer.MainActivity
+//import com.example.mediabrowserplayer.PlayerActivity
 //import com.example.mediabrowserplayer.core.notifications.PlayingNotification.Companion.NOTIFICATION_CHANNEL_ID
 //import com.example.mediabrowserplayer.core.services.MusicService
 //import com.ndtech.smartmusicplayer.R
@@ -34,7 +35,7 @@
 //
 //
 //    init {
-//        val action = Intent(context, MainActpackage com.ndtech.smartmusicplayer.serviceivity::class.java)
+//        val action = Intent(context, PlayerActivity::class.java)
 //        action.putExtra(MainActivity.EXPAND_PANEL, true)
 //        action.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
 //        val clickIntent =

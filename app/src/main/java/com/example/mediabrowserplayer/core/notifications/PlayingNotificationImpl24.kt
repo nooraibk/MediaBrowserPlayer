@@ -12,15 +12,14 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.text.parseAsHtml
 import androidx.media.app.NotificationCompat.MediaStyle
-import com.example.mediabrowserplayer.BaseActivity
+import com.example.mediabrowserplayer.PlayerActivity
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.core.services.MediaService
+import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
+import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_PREVIOUS
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
-import com.example.mediabrowserplayer.utils.TOGGLE_FAVORITE
-import com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_REWIND
 
 @SuppressLint("RestrictedApi")
 class PlayingNotificationImpl24(
@@ -29,7 +28,7 @@ class PlayingNotificationImpl24(
 ) : PlayingNotification(context) {
 
     init {
-        val action = Intent(context, BaseActivity::class.java)
+        val action = Intent(context, PlayerActivity::class.java)
 //        action.putExtra(MainActivity.EXPAND_PANEL, PreferenceUtil.isExpandPanel)
         action.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         val clickIntent =
@@ -54,7 +53,7 @@ class PlayingNotificationImpl24(
         val previousAction = NotificationCompat.Action(
             R.drawable.ic_previous,
             context.getString(R.string.action_previous),
-            retrievePlaybackAction(ACTION_REWIND)
+            retrievePlaybackAction(ACTION_SKIP_TO_PREVIOUS)
         )
         val nextAction = NotificationCompat.Action(
             R.drawable.ic_next,
@@ -125,30 +124,8 @@ class PlayingNotificationImpl24(
         ).build()
     }
 
-    private fun buildFavoriteAction(isFavorite: Boolean): NotificationCompat.Action {
-        val favoriteResId =
-            if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
-        return NotificationCompat.Action.Builder(
-            favoriteResId,
-            context.getString(R.string.action_toggle_favorite),
-            retrievePlaybackAction(TOGGLE_FAVORITE)
-        ).build()
-    }
-
     override fun setPlaying(isPlaying: Boolean) {
         mActions[1] = buildPlayAction(isPlaying)
-    }
-
-    override fun updateFavorite(Track: Track, onUpdate: () -> Unit) {
-//        GlobalScope.launch(Dispatchers.IO) {
-//            val isFavorite = MusicUtil.repository.isTrackFavorite(Track.id)
-//            withContext(Dispatchers.Main) {
-//                mActions[0] = buildFavoriteAction(isFavorite)
-//                onUpdate()
-//            }
-//        }
-//        mActions[0] = buildFavoriteAction(Track.isFav)
-//        onUpdate()
     }
 
     private fun retrievePlaybackAction(action: String): PendingIntent {
