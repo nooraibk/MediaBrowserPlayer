@@ -90,11 +90,11 @@ class PlayerActivity : BaseActivity() {
     }
 
     override fun isMediaActionPlay() {
-        mediaStatePlaying()
+
     }
 
     override fun isMediaActionStop() {
-        mediaStateStop()
+
     }
 
     override fun isMediaActionPause() {
@@ -161,8 +161,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     private fun mediaStateStop(){
-        btnPlay.isVisible = true
-        btnStop.isVisible = false
+
         Log.d("PlayerMediaState", "MediaStateStop")
         MediaController.stopPlayer()
     }

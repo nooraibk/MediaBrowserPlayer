@@ -8,15 +8,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediabrowserplayer.data.Track
 
-class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView.Adapter<TracksRecyclerView.ExampleViewHolder>(){
+class TracksRecyclerView(private val listener: (Int) -> Unit) :
+    RecyclerView.Adapter<TracksRecyclerView.ExampleViewHolder>() {
 
     private var data = ArrayList<Track>()
 
-    interface ItemClickListener{
+    interface ItemClickListener {
         fun onItemClick(trackIndex: Int)
     }
 
-    class ExampleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    class ExampleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtView: TextView = itemView.findViewById(R.id.trackTitle)
     }
 
@@ -24,7 +25,7 @@ class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView
         parent: ViewGroup,
         viewType: Int
     ): ExampleViewHolder {
-        val inflater : LayoutInflater = LayoutInflater.from(parent.context)
+        val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.recycler_item_view, parent, false)
 
         return ExampleViewHolder(view)
@@ -34,7 +35,7 @@ class TracksRecyclerView(private val listener: ItemClickListener) : RecyclerView
         holder.txtView.text = data[position].title
 
         holder.itemView.setOnClickListener {
-            listener.onItemClick(position)
+            listener.invoke(position)
         }
     }
 

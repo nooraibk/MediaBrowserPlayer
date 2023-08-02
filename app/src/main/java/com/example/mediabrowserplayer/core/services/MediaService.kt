@@ -20,6 +20,7 @@ import com.example.mediabrowserplayer.data.emptyTrack
 import com.example.mediabrowserplayer.core.notifications.PlayingNotification
 import com.example.mediabrowserplayer.utils.TAG
 import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24
+import com.example.mediabrowserplayer.core.showToast
 import com.example.mediabrowserplayer.data.TracksList
 import com.example.mediabrowserplayer.utils.ACTION_PAUSE
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
@@ -43,7 +44,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private var mediaSession: MediaSessionCompat? = null // Create a media session.
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
-    var tracksList = TracksList.tracks
+    var tracksList = mutableListOf<Track>()
     private var currentTrackIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
@@ -134,53 +135,11 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
-    var mediaPlayBackCounter = 0
-
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
 
-            val dataSourceFactory = DefaultDataSourceFactory(
-                this@MediaService, Util.getUserAgent(this@MediaService, getString(R.string.app_name))
-            )
-            Log.d("TracksListOnMediaPlay", tracksList.toString())
-
-            val mediaItem = MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
-
-            val mediaSource =
-                ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
-
-            if (!isPlaying){
-                exoPlayer.setMediaSource(mediaSource)
-                exoPlayer.prepare()
-                exoPlayer.playWhenReady = true
-                isPlaying = true
-            }
-
-            if (mediaPlayBackCounter == 0) {
-                sendBroadcast(Intent(ACTION_PLAY))
-                mediaPlayBackCounter += 1
-                Log.d("MediaPlayBackCounter", mediaPlayBackCounter.toString())
-            }
-
-            if (!isForeground) {
-                isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(
-                        PlayingNotification.NOTIFICATION_ID,
-                        playingNotification!!.build(),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                    true
-                } else {
-                    startForeground(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
-                    true
-                }
-            } else {
-                notificationManager?.notify(
-                    PlayingNotification.NOTIFICATION_ID,
-                    playingNotification!!.build()
-                )
-            }
-
+//            showToast("play")
+            setPlayer()
         }
 
         override fun onStop() {
@@ -189,7 +148,6 @@ class MediaService : MediaBrowserServiceCompat() {
             exoPlayer.stop()
             exoPlayer.release()
             sendBroadcastOnChange(ACTION_STOP)
-            mediaPlayBackCounter = 0
             super.onStop()
         }
 
@@ -201,7 +159,7 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToNext() {
-            if (tracksList.size>=0){
+            if (tracksList.size >= 0) {
                 currentTrackIndex += 1
                 onPlay()
                 sendBroadcastOnChange(ACTION_SKIP_TO_NEXT)
@@ -209,7 +167,7 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToPrevious() {
-            if (tracksList.size>=0){
+            if (tracksList.size >= 0) {
                 currentTrackIndex -= 1
                 onPlay()
                 sendBroadcastOnChange(ACTION_SKIP_TO_PREVIOUS)
@@ -220,6 +178,51 @@ class MediaService : MediaBrowserServiceCompat() {
             super.onSeekTo(pos)
         }
 
+    }
+
+    private fun setPlayer() {
+        val dataSourceFactory = DefaultDataSourceFactory(
+            this@MediaService,
+            Util.getUserAgent(this@MediaService, getString(R.string.app_name))
+        )
+        Log.d("TracksListOnMediaPlay", tracksList.toString())
+
+        val mediaItem =
+            MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
+
+        val mediaSource =
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+
+        if (!isPlaying) {
+            exoPlayer.setMediaSource(mediaSource)
+            exoPlayer.prepare()
+            exoPlayer.playWhenReady = true
+            isPlaying = true
+        }
+
+        sendBroadcast(Intent(ACTION_PLAY))
+        startForegroundOrNotify()
+    }
+
+    private fun startForegroundOrNotify() {
+        if (!isForeground) {
+            isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    PlayingNotification.NOTIFICATION_ID,
+                    playingNotification!!.build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                )
+                true
+            } else {
+                startForeground(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
+                true
+            }
+        } else {
+            notificationManager?.notify(
+                PlayingNotification.NOTIFICATION_ID,
+                playingNotification!!.build()
+            )
+        }
     }
 
     fun currentTrack(): Track {
@@ -243,13 +246,13 @@ class MediaService : MediaBrowserServiceCompat() {
 
     }
 
-    fun sendBroadcastOnChange(change: String){
+    fun sendBroadcastOnChange(change: String) {
         val intent = Intent(change)
         sendBroadcast(intent)
     }
 
     fun playTrack() {
-        if (tracksList.size >= 0){
+        if (tracksList.size >= 0) {
             mediaSessionCallback.onPlay()
         }
     }
@@ -262,25 +265,21 @@ class MediaService : MediaBrowserServiceCompat() {
         mediaSessionCallback.onPause()
     }
 
-    fun nextTrack(){
+    fun nextTrack() {
         mediaSessionCallback.onSkipToNext()
     }
 
-    fun prevTrack(){
+    fun prevTrack() {
         mediaSessionCallback.onSkipToPrevious()
     }
 
     fun setTracks(tracks: List<Track>) {
-//        tracks.forEach {
-//            if (tracksList.isEmpty() && !tracksList.contains(it)){
-//                tracksList.add(it)
-//            }
-//        }
-//        Log.d("TracksListOnSetTracks", tracksList.toString())
+        tracksList = tracks as MutableList<Track>
+        Log.d("TracksListOnSetTracks", tracksList.size.toString())
     }
 
     fun setCurrentTrackIndex(trackIndex: Int) {
-        if (trackIndex >= 0 && trackIndex <= tracksList.size){
+        if (trackIndex >= 0 && trackIndex <= tracksList.size) {
             currentTrackIndex = trackIndex
         }
     }

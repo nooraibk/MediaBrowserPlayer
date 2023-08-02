@@ -53,4 +53,46 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
         MediaController.unbindFromService(serviceToken)
     }
 
+    override fun isSuccessfulConnectionEvent() {
+    }
+
+    override fun isDisconnectedEvent() {
+    }
+
+    override fun isPlayingQueueChangeEvent() {
+    }
+
+    override fun isFavChangeEvent() {
+    }
+
+    override fun isMediaStoreChangeEvent() {
+    }
+
+    override fun isPlayStateChangeEvent() {
+    }
+
+    override fun isPlayingMetaChangeEvent() {
+    }
+
+    override fun isPlayerStateReady() {
+    }
+
+    override fun isPlayerStateBuffering() {
+    }
+
+    override fun isMediaActionPlay() {
+    }
+
+    override fun isMediaActionStop() {
+    }
+
+    override fun isMediaActionPause() {
+    }
+
+    override fun isMediaActionSkipToNext() {
+    }
+
+    override fun isMediaActionSkipToPrevious() {
+    }
+
 }
