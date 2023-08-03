@@ -13,6 +13,7 @@ import com.example.mediabrowserplayer.core.services.MediaService
 import java.util.WeakHashMap
 
 object MediaController {
+
     var mediaService: MediaService? = null
     private val connectionMap = WeakHashMap<Context, ControllerServiceBinder>()
 
@@ -54,6 +55,10 @@ object MediaController {
         }
     }
 
+    @JvmStatic
+    val isPlaying: Boolean
+        get() = mediaService != null && mediaService!!.isPlaying
+
     class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(TAG, "onServiceConnected")
@@ -84,6 +89,7 @@ object MediaController {
     }
 
     fun playNextTrack(){
+        Log.d("ControllerTAG", "playNextTrack")
         mediaService?.nextTrack()
     }
 
@@ -99,7 +105,10 @@ object MediaController {
         mediaService?.setCurrentTrackIndex(index)
     }
 
-    fun getCurrentTrack() = mediaService?.currentTrack()
+    fun getCurrentTrack() : Track?{
+        Log.d("CurrentTrackTAGController", mediaService?.currentTrack().toString())
+        return mediaService?.currentTrack()
+    }
 
     fun getSystemVolume() = mediaService?.liveSystemVolume
 

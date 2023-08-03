@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer
+package com.example.mediabrowserplayer.presentation.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 
 class TracksRecyclerView(private val listener: (Int) -> Unit) :

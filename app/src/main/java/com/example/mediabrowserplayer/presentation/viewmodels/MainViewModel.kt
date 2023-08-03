@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer
+package com.example.mediabrowserplayer.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.mediabrowserplayer.data.TracksList

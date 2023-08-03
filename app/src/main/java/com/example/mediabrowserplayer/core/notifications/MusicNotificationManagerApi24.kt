@@ -15,8 +15,8 @@
 //import com.bumptech.glide.request.target.CustomTarget
 //import com.bumptech.glide.request.target.Target
 //import com.bumptech.glide.request.transition.Transition
-//import com.example.mediabrowserplayer.MainActivity
-//import com.example.mediabrowserplayer.PlayerActivity
+//import com.example.mediabrowserplayer.presentation.activities.MainActivity
+//import com.example.mediabrowserplayer.presentation.activities.PlayerActivity
 //import com.example.mediabrowserplayer.core.notifications.PlayingNotification.Companion.NOTIFICATION_CHANNEL_ID
 //import com.example.mediabrowserplayer.core.services.MusicService
 //import com.ndtech.smartmusicplayer.R

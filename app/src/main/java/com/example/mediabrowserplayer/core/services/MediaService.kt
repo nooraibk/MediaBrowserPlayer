@@ -1,9 +1,7 @@
 package com.example.mediabrowserplayer.core.services
 
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
 import android.net.Uri
@@ -21,15 +19,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
 import com.example.mediabrowserplayer.R
-import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeEvents
-import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeReceiver
-import com.example.mediabrowserplayer.data.Track
-import com.example.mediabrowserplayer.data.emptyTrack
 import com.example.mediabrowserplayer.core.notifications.PlayingNotification
-import com.example.mediabrowserplayer.utils.TAG
 import com.example.mediabrowserplayer.core.notifications.PlayingNotificationImpl24
-import com.example.mediabrowserplayer.core.showToast
-import com.example.mediabrowserplayer.data.TracksList
+import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.utils.ACTION_PAUSE
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.ACTION_QUIT
@@ -41,7 +33,7 @@ import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_ENDED
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_IDLE
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
-import com.example.mediabrowserplayer.utils.PLAY_STATE_CHANGED
+import com.example.mediabrowserplayer.utils.TAG
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -49,8 +41,6 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 
 class MediaService : MediaBrowserServiceCompat() {
 
@@ -63,7 +53,7 @@ class MediaService : MediaBrowserServiceCompat() {
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
     private var isForeground = false
-    private var isPlaying = false
+    var isPlaying = false
     private lateinit var audioManager : AudioManager
     private var isRadio = true
 
@@ -102,16 +92,31 @@ class MediaService : MediaBrowserServiceCompat() {
             if (isRadio) {
                 when (intent.action) {
                     ACTION_TOGGLE_PAUSE -> if (isPlaying) {
+                        Log.d("NotificationTAG", "toggle stop player requested")
                         stopPlayer()
                     } else {
+                        Log.d("NotificationTAG", "toggle start player requested")
                         playTrack()
                     }
 
-                    ACTION_PAUSE -> pauseTrack()
-                    ACTION_PLAY -> playTrack()
-                    ACTION_SKIP_TO_PREVIOUS -> prevTrack()
-                    ACTION_SKIP_TO_NEXT -> nextTrack()
+                    ACTION_PAUSE -> {
+                        Log.d("NotificationTAG", "stop player requested")
+                        stopPlayer()
+                    }
+                    ACTION_PLAY -> {
+                        Log.d("NotificationTAG", "start player requested")
+                        playTrack()
+                    }
+                    ACTION_SKIP_TO_PREVIOUS -> {
+                        Log.d("NotificationTAG", "previous player requested")
+                        prevTrack()
+                    }
+                    ACTION_SKIP_TO_NEXT -> {
+                        Log.d("NotificationTAG", "next player requested")
+                        nextTrack()
+                    }
                     ACTION_STOP, ACTION_QUIT -> {
+                        Log.d("NotificationTAG", "quit player requested")
                         stopService()
                     }
                 }
@@ -155,30 +160,29 @@ class MediaService : MediaBrowserServiceCompat() {
         notificationManager = getSystemService()
         playingNotification =
             PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession!!)
-        notificationManager?.notify(
-            PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
-        )
+//        notificationManager?.notify(
+//            PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
+//        )
 
         audioManager = getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
         _liveSystemVolume.value = getSystemVolume()
     }
 
-    fun stopService() {
+    private fun stopService() {
 
         currentTrackIndex = 0
 
         isForeground = false
         isPlaying = false
         stopForeground(true)
-        sendBroadcastOnChange(PLAY_STATE_CHANGED)
         if (isRadio) {
             tracksList.clear()
-            stopPlayer()
+            isForeground = false
+            isPlaying = false
         } else {
 //            pauseRadio()
 //            radioQueue.clear()
 //            notificationManager?.cancelAll()
-
         }
     }
 
@@ -189,22 +193,25 @@ class MediaService : MediaBrowserServiceCompat() {
 
                 // check player play back state
                 Player.STATE_READY -> {
-                    sendBroadcastOnChange(PLAYER_STATE_READY)
+                    sendMediaBroadcast(PLAYER_STATE_READY)
+                    playingNotification?.setPlaying(true)
+                    updateNotification(currentTrack())
+                    startForegroundOrNotify()
                     Log.d(TAG, "Player started playback")
                 }
 
                 Player.STATE_ENDED -> {
-                    sendBroadcastOnChange(PLAYER_STATE_ENDED)
+                    sendMediaBroadcast(PLAYER_STATE_ENDED)
                     Log.d(TAG, "Player has stopped")
                 }
 
                 Player.STATE_BUFFERING -> {
-                    sendBroadcastOnChange(PLAYER_STATE_BUFFERING)
+                    sendMediaBroadcast(PLAYER_STATE_BUFFERING)
                     Log.d(TAG, "Player is buffering")
                 }
 
                 Player.STATE_IDLE -> {
-                    sendBroadcastOnChange(PLAYER_STATE_IDLE)
+                    sendMediaBroadcast(PLAYER_STATE_IDLE)
                     Log.d(TAG, "Player is idle")
                 }
             }
@@ -212,7 +219,6 @@ class MediaService : MediaBrowserServiceCompat() {
 
         override fun onPlayerError(error: PlaybackException) {
             isPlaying = false
-            showToast(error.message?:"shit no error message")
             super.onPlayerError(error)
 
         }
@@ -224,28 +230,29 @@ class MediaService : MediaBrowserServiceCompat() {
                 this@MediaService,
                 Util.getUserAgent(this@MediaService, getString(R.string.app_name))
             )
-            Log.d("TracksListOnMediaPlay", tracksList.toString())
 
             val mediaItem = MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
 
             val mediaSource =
                 ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
-
             if (!isPlaying) {
                 exoPlayer.setMediaSource(mediaSource)
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
                 isPlaying = true
+            }else{
+                onStop()
+                onPlay()
             }
-
+            Log.d("MediaServiceTAG", "onPlayStatus : $isPlaying currentTrackIndex $currentTrackIndex")
             sendBroadcast(Intent(ACTION_PLAY))
-            startForegroundOrNotify()
         }
 
         override fun onStop() {
             isPlaying = false
             exoPlayer.playWhenReady = false
-            sendBroadcastOnChange(ACTION_STOP)
+            playingNotification?.setPlaying(false)
+            sendMediaBroadcast(ACTION_STOP)
             super.onStop()
         }
 
@@ -253,22 +260,24 @@ class MediaService : MediaBrowserServiceCompat() {
             isPlaying = false
             exoPlayer.playWhenReady = false
             exoPlayer.pause()
-            sendBroadcastOnChange(ACTION_PAUSE)
+            sendMediaBroadcast(ACTION_PAUSE)
         }
 
         override fun onSkipToNext() {
-            if (currentTrackIndex >= 0 && currentTrackIndex <= tracksList.size) {
+            if (currentTrackIndex >= 0 && currentTrackIndex < tracksList.size-1) {
                 currentTrackIndex += 1
+                onStop()
                 onPlay()
-                sendBroadcastOnChange(ACTION_SKIP_TO_NEXT)
+                sendMediaBroadcast(ACTION_SKIP_TO_NEXT)
             }
         }
 
         override fun onSkipToPrevious() {
-            if (currentTrackIndex >= 0 && currentTrackIndex <= tracksList.size) {
+            if (currentTrackIndex > 0 && currentTrackIndex <= tracksList.size-1) {
                 currentTrackIndex -= 1
+                onStop()
                 onPlay()
-                sendBroadcastOnChange(ACTION_SKIP_TO_PREVIOUS)
+                sendMediaBroadcast(ACTION_SKIP_TO_PREVIOUS)
             }
         }
 
@@ -299,33 +308,36 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
+    private fun updateNotification(track : Track){
+        playingNotification?.updateMetadata(track)
+    }
+
     fun currentTrack(): Track {
         try {
             if (tracksList.isEmpty()) {
-                return emptyTrack()
+                return Track()
             }
             return tracksList[currentTrackIndex]
         } catch (e: Exception) {
             Log.d(TAG, "${e.printStackTrace()} ")
             if (tracksList.isEmpty()) {
-                return emptyTrack()
+                return Track()
             }
-            return emptyTrack()
+            return Track()
         }
     }
 
-    fun sendBroadcastOnChange(change: String) {
+    fun sendMediaBroadcast(change: String) {
         val intent = Intent(change)
         sendBroadcast(intent)
     }
 
     fun playTrack() {
         Log.d("MEDIASERVICEFROMSERVICE", "playtrack function")
-        if (tracksList.size >= 0) {
+        if (currentTrackIndex>=0 && currentTrackIndex <= tracksList.size-1){
             mediaSessionCallback.onPlay()
         }
     }
-
 
     fun stopPlayer() {
         mediaSessionCallback.onStop()

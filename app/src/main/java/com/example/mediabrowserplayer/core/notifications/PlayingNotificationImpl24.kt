@@ -6,13 +6,16 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import androidx.core.text.parseAsHtml
 import androidx.media.app.NotificationCompat.MediaStyle
-import com.example.mediabrowserplayer.PlayerActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.example.mediabrowserplayer.presentation.activities.PlayerActivity
 import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.core.services.MediaService
 import com.example.mediabrowserplayer.data.Track
@@ -23,30 +26,22 @@ import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
 
 @SuppressLint("RestrictedApi")
 class PlayingNotificationImpl24(
-    val context: Context,
-    mediaSessionToken: MediaSessionCompat.Token
+    val context: Context, mediaSessionToken: MediaSessionCompat.Token
 ) : PlayingNotification(context) {
 
     init {
         val action = Intent(context, PlayerActivity::class.java)
 //        action.putExtra(MainActivity.EXPAND_PANEL, PreferenceUtil.isExpandPanel)
         action.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        val clickIntent =
-            PendingIntent.getActivity(
-                context,
-                0,
-                action,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+        val clickIntent = PendingIntent.getActivity(
+            context, 0, action, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val serviceName = ComponentName(context, MediaService::class.java)
         val intent = Intent(ACTION_QUIT)
         intent.component = serviceName
         val deleteIntent = PendingIntent.getService(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or (PendingIntent.FLAG_IMMUTABLE)
+            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or (PendingIntent.FLAG_IMMUTABLE)
         )
 //        val toggleFavorite = buildFavoriteAction(false)
         val playPauseAction = buildPlayAction(true)
@@ -65,7 +60,7 @@ class PlayingNotificationImpl24(
             context.getString(R.string.action_cancel),
             retrievePlaybackAction(ACTION_QUIT)
         )
-        setSmallIcon(R.drawable.ic_notification)
+        setSmallIcon(R.drawable.ic_app)
         setContentIntent(clickIntent)
         setDeleteIntent(deleteIntent)
         setShowWhen(false)
@@ -78,9 +73,7 @@ class PlayingNotificationImpl24(
         }
 
         setStyle(
-            MediaStyle()
-                .setMediaSession(mediaSessionToken)
-                .setShowActionsInCompactView(0, 1, 2)
+            MediaStyle().setMediaSession(mediaSessionToken).setShowActionsInCompactView(0, 1, 2)
         )
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
     }
@@ -90,33 +83,40 @@ class PlayingNotificationImpl24(
             context.packageName,
             if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
         )
-        remoteViews.setTextViewText(
-            R.id.appName,
-            context.getString(R.string.app_name) + " • " + track.title
-        )
+//        remoteViews.setTextViewText(
+//            R.id.appName, context.getString(R.string.app_name)
+//        )
         remoteViews.setTextViewText(R.id.title, track.title)
-        remoteViews.setTextViewText(R.id.subtitle, track.title)
+        remoteViews.setTextViewText(R.id.subtitle, track.description)
 //        linkButtons(remoteViews)
         return remoteViews
     }
 
-    override fun updateMetadata(track: Track, onUpdate: () -> Unit) {
+    override fun updateMetadata(track: Track) {
         val notificationLayout = getCombinedRemoteViews(true, track)
         val notificationLayoutBig = getCombinedRemoteViews(false, track)
 
-        setContentTitle(("<b>" + track.title + "</b>").parseAsHtml())
-        setContentText(track.title)
-        setSubText(("<b>" + track.title + "</b>").parseAsHtml())
+        setContentTitle(track.title)
+        setContentText(track.description)
 
-        setCustomContentView(notificationLayout)
-        setCustomBigContentView(notificationLayoutBig)
+        Glide.with(context)
+            .asBitmap()
+            .load(track.logo)
+            .placeholder(R.drawable.ic_app)
+            .into(object : SimpleTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    setLargeIcon(resource)
+                }
+            })
+
+//        setCustomContentView(notificationLayout)
+//        setCustomBigContentView(notificationLayoutBig)
         setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
         setOngoing(true)
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
-        val playButtonResId =
-            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        val playButtonResId = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         return NotificationCompat.Action.Builder(
             playButtonResId,
             context.getString(R.string.action_play_pause),
@@ -133,8 +133,7 @@ class PlayingNotificationImpl24(
         val intent = Intent(action)
         intent.component = serviceName
         return PendingIntent.getService(
-            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or
-                    PendingIntent.FLAG_IMMUTABLE
+            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 

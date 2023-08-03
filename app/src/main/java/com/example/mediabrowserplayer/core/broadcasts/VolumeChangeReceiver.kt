@@ -3,11 +3,7 @@ package com.example.mediabrowserplayer.core.broadcasts
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
-import android.widget.Toast
-import com.example.mediabrowserplayer.BaseActivity
-import com.example.mediabrowserplayer.PlayerActivity
-import com.example.mediabrowserplayer.core.services.MediaService
+import com.example.mediabrowserplayer.presentation.activities.PlayerActivity
 import java.lang.ref.WeakReference
 
 class VolumeChangeReceiver(activity: PlayerActivity) : BroadcastReceiver() {

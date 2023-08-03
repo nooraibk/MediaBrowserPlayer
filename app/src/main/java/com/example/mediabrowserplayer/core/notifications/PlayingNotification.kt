@@ -5,13 +5,14 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.bumptech.glide.Priority
 import com.example.mediabrowserplayer.R
 import com.example.mediabrowserplayer.data.Track
 
 abstract class PlayingNotification(context: Context) :
     NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID) {
 
-    abstract fun updateMetadata(track: Track, onUpdate: () -> Unit)
+    abstract fun updateMetadata(track: Track)
 
     abstract fun setPlaying(isPlaying: Boolean)
 
@@ -32,11 +33,12 @@ abstract class PlayingNotification(context: Context) :
                 notificationChannel = NotificationChannel(
                     NOTIFICATION_CHANNEL_ID,
                     context.getString(R.string.playing_notification_name),
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_HIGH
                 )
                 notificationChannel.description =
                     context.getString(R.string.playing_notification_description)
                 notificationChannel.enableLights(false)
+                notificationChannel.importance = NotificationManager.IMPORTANCE_HIGH
                 notificationChannel.enableVibration(false)
                 notificationChannel.setShowBadge(false)
 

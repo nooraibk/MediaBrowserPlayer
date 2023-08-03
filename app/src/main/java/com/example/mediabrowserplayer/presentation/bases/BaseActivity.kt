@@ -1,4 +1,4 @@
-package com.example.mediabrowserplayer
+package com.example.mediabrowserplayer.presentation.bases
 
 import android.content.ComponentName
 import android.content.IntentFilter
@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.example.mediabrowserplayer.presentation.viewmodels.MainViewModel
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
 import com.example.mediabrowserplayer.core.broadcasts.PlaybackStateReceiver
 import com.example.mediabrowserplayer.utils.ACTION_PAUSE
@@ -27,6 +29,8 @@ import com.example.mediabrowserplayer.utils.QUEUE_CHANGED
 import com.example.mediabrowserplayer.utils.TAG
 
 abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
+
+    lateinit var viewModel: MainViewModel
     private val playbackServiceEvents: ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
     private lateinit var playbackStateReceiver: PlaybackStateReceiver
     private var playbackReceiverRegistered = false
@@ -34,6 +38,9 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        Log.d("LogginViewModel", viewModel.viewModelInstance)
 
         serviceToken = MediaController.bindToService(this, object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {

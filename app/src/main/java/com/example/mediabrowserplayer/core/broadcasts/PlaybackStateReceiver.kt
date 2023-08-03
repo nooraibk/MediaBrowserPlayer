@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.mediabrowserplayer.BaseActivity
+import com.example.mediabrowserplayer.presentation.bases.BaseActivity
 import com.example.mediabrowserplayer.utils.ACTION_PAUSE
 import com.example.mediabrowserplayer.utils.ACTION_PLAY
 import com.example.mediabrowserplayer.utils.ACTION_QUIT

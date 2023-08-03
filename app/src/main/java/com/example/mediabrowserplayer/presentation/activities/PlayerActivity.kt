@@ -1,31 +1,17 @@
-package com.example.mediabrowserplayer
+package com.example.mediabrowserplayer.presentation.activities
 
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.core.view.isVisible
+import com.bumptech.glide.Glide
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
-import com.example.mediabrowserplayer.core.broadcasts.PlaybackStateReceiver
 import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeEvents
 import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeReceiver
 import com.example.mediabrowserplayer.core.showToast
 import com.example.mediabrowserplayer.databinding.ActivityPlayerBinding
-import com.example.mediabrowserplayer.utils.ACTION_PAUSE
-import com.example.mediabrowserplayer.utils.ACTION_PLAY
-import com.example.mediabrowserplayer.utils.ACTION_QUIT
-import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
-import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_PREVIOUS
-import com.example.mediabrowserplayer.utils.ACTION_STOP
-import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
-import com.example.mediabrowserplayer.utils.META_CHANGED
+import com.example.mediabrowserplayer.presentation.bases.BaseActivity
 import com.example.mediabrowserplayer.utils.MediaController
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_ENDED
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_IDLE
-import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
-import com.example.mediabrowserplayer.utils.PLAY_STATE_CHANGED
-import com.example.mediabrowserplayer.utils.QUEUE_CHANGED
 
 class PlayerActivity : BaseActivity(), VolumeChangeEvents {
 
@@ -33,7 +19,6 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
 //    private lateinit var mediaController: MediaControllerCompat
 
     private lateinit var binding : ActivityPlayerBinding
-
     private var eventsListener: MediaPlaybackServiceEvents? = null
 
     private val volumeReceiver = VolumeChangeReceiver(this)
@@ -65,11 +50,6 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val title : TextView = findViewById(R.id.trackTitle)
-
-        val track = MediaController.getCurrentTrack()
-        title.text = track?.title
-
         binding.btnPlay.setOnClickListener {
             MediaController.playTrack()
         }
@@ -100,16 +80,18 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
             Log.d("LiveVolumeProgress", it.toString())
         }
 
+
     }
 
-
-
+    override fun isSuccessfulConnectionEvent() {
+        super.isSuccessfulConnectionEvent()
+        Log.d("CurrentTrackTAGONresume", MediaController.getCurrentTrack().toString())
+        updateMeta(MediaController.isPlaying)
+    }
 
     override fun isMediaActionPlay() {
         super.isMediaActionPlay()
         Log.d("PlayerMedia", "Action Playing")
-        binding.btnPlay.isVisible = false
-        binding.btnStop.isVisible = true
     }
 
     override fun isMediaActionStop() {
@@ -119,23 +101,39 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
         binding.btnStop.isVisible = false
     }
 
+    override fun isPlayerStateReady() {
+        super.isPlayerStateReady()
+        updateMeta(true)
+    }
+
+    override fun isPlayerStateIdle() {
+        super.isPlayerStateIdle()
+        showToast("Player state idle")
+    }
+
     override fun isPlayerStateBuffering() {
         super.isPlayerStateBuffering()
         showToast("Player state buffering")
     }
 
-    override fun isMediaActionSkipToNext() {
-        showToast("Next Media Requested")
+    override fun isPlayerStateEnded() {
+        super.isPlayerStateEnded()
+        showToast("Player state ended")
     }
 
-    override fun isMediaActionSkipToPrevious() {
-        showToast("Previous Media Requested")
+    private fun updateMeta(isPlaying : Boolean) {
+        val currentTrack = MediaController.getCurrentTrack()
+        Log.d("CurrentTrackTAGMeta", currentTrack.toString())
+        binding.trackTitle.text = "${currentTrack?.title} - ${currentTrack?.description}"
+        Glide.with(binding.trackThumbnail)
+            .load(currentTrack?.logo)
+            .into(binding.trackThumbnail)
+        if (isPlaying){
+            binding.btnPlay.isVisible = false
+            binding.btnStop.isVisible = true
+        }else{
+            binding.btnPlay.isVisible = true
+            binding.btnStop.isVisible = false
+        }
     }
-
-    private fun nextTrack(){
-        MediaController.playNextTrack()
-    }
-
-
-
 }
