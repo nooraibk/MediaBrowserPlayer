@@ -212,6 +212,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
         override fun onPlayerError(error: PlaybackException) {
             isPlaying = false
+            showToast(error.message?:"shit no error message")
             super.onPlayerError(error)
 
         }
@@ -225,8 +226,7 @@ class MediaService : MediaBrowserServiceCompat() {
             )
             Log.d("TracksListOnMediaPlay", tracksList.toString())
 
-            val mediaItem =
-                MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
+            val mediaItem = MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
 
             val mediaSource =
                 ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
@@ -245,8 +245,6 @@ class MediaService : MediaBrowserServiceCompat() {
         override fun onStop() {
             isPlaying = false
             exoPlayer.playWhenReady = false
-            exoPlayer.stop()
-            exoPlayer.release()
             sendBroadcastOnChange(ACTION_STOP)
             super.onStop()
         }
@@ -322,6 +320,7 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     fun playTrack() {
+        Log.d("MEDIASERVICEFROMSERVICE", "playtrack function")
         if (tracksList.size >= 0) {
             mediaSessionCallback.onPlay()
         }

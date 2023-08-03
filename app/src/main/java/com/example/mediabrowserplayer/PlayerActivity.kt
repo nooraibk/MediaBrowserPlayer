@@ -33,9 +33,7 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
 //    private lateinit var mediaController: MediaControllerCompat
 
     private lateinit var binding : ActivityPlayerBinding
-    private val playbackServiceEvents : ArrayList<MediaPlaybackServiceEvents> = arrayListOf()
-    private lateinit var playbackStateReceiver : PlaybackStateReceiver
-    private var playbackReceiverRegistered = false
+
     private var eventsListener: MediaPlaybackServiceEvents? = null
 
     private val volumeReceiver = VolumeChangeReceiver(this)
@@ -44,6 +42,7 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
     }
 
     override fun isVolumeChanged(){
+        showToast("volume changed")
         MediaController.getSystemVolume()?.observe(this){
 
             binding.volumeProgress.progress = it
@@ -103,48 +102,25 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
 
     }
 
-    override fun isSuccessfulConnectionEvent() {
-        if (!playbackReceiverRegistered) {
-            playbackStateReceiver = PlaybackStateReceiver(this)
-            val filter = IntentFilter()
-            filter.addAction(META_CHANGED)
-            filter.addAction(QUEUE_CHANGED)
-            filter.addAction(ACTION_TOGGLE_PAUSE)
-            filter.addAction(ACTION_PLAY)
-            filter.addAction(ACTION_PAUSE)
-            filter.addAction(ACTION_STOP)
-            filter.addAction(ACTION_SKIP_TO_NEXT)
-            filter.addAction(ACTION_SKIP_TO_PREVIOUS)
-            filter.addAction(ACTION_QUIT)
-            filter.addAction(PLAY_STATE_CHANGED)
-            filter.addAction(PLAYER_STATE_BUFFERING)
-            filter.addAction(PLAYER_STATE_READY)
-            filter.addAction(PLAYER_STATE_IDLE)
-            filter.addAction(PLAYER_STATE_ENDED)
-            Log.d("BroadcastReceiver", "onRegister")
-            registerReceiver(playbackStateReceiver, filter)
 
-            playbackReceiverRegistered = true
-        }
 
-        for (listener in playbackServiceEvents) {
-            listener.isSuccessfulConnectionEvent()
-        }
-    }
 
     override fun isMediaActionPlay() {
+        super.isMediaActionPlay()
         Log.d("PlayerMedia", "Action Playing")
         binding.btnPlay.isVisible = false
         binding.btnStop.isVisible = true
     }
 
     override fun isMediaActionStop() {
+        super.isMediaActionStop()
         Log.d("PlayerMedia", "Action Stop")
         binding.btnPlay.isVisible = true
         binding.btnStop.isVisible = false
     }
 
     override fun isPlayerStateBuffering() {
+        super.isPlayerStateBuffering()
         showToast("Player state buffering")
     }
 
@@ -160,16 +136,6 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
         MediaController.playNextTrack()
     }
 
-    fun attachPlaybackEvents(listenerI: MediaPlaybackServiceEvents?) {
-        if (listenerI != null) {
-            playbackServiceEvents.add(listenerI)
-        }
-    }
 
-    fun detachPlaybackEvents(listenerI: MediaPlaybackServiceEvents?) {
-        if (listenerI != null) {
-            playbackServiceEvents.remove(listenerI)
-        }
-    }
 
 }
