@@ -89,7 +89,6 @@ object MediaController {
     }
 
     fun playNextTrack(){
-        Log.d("ControllerTAG", "playNextTrack")
         mediaService?.nextTrack()
     }
 
@@ -106,11 +105,24 @@ object MediaController {
     }
 
     fun getCurrentTrack() : Track?{
-        Log.d("CurrentTrackTAGController", mediaService?.currentTrack().toString())
         return mediaService?.currentTrack()
     }
 
+    fun setPodcastsQueue(podcasts : List<Track>){
+        mediaService?.setPodcasts(podcasts)
+    }
+
+    fun setCurrentPodcast(index : Int){
+        mediaService?.setCurrentPodcastIndex(index)
+    }
+
+    fun getCurrentPodcast() : Track?{
+        return mediaService?.currentPodcast()
+    }
+
     fun getSystemVolume() = mediaService?.liveSystemVolume
+
+    fun setSystemVolume(volume : Int) = mediaService?.setVolume(volume)
 
     fun increaseVolume() = mediaService?.volumeUp()
 

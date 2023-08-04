@@ -1,0 +1,16 @@
+>> Cybersecurity Today
+
+title: Hackers selling data centre logins, phone number recycling that leads to accidental account hijacking and a ransomware gang that claims your cyber insurance firm is blocking your data return
+url: https://traffic.libsyn.com/secure/cybersecuritytoday/CYBER_SECURITY_TODAY_FEB_22_2023.mp3
+
+title:A business email scam group is broken in Europe, GoDaddy's IT system hit again and more
+url:https://traffic.libsyn.com/secure/cybersecuritytoday/CYBER_SECURITY_TODAY_FEB_20_2023.mp3
+
+title: A fake Emsisoft code-signing certificate found, increasing VMware ransomware detected and more
+url: https://traffic.libsyn.com/secure/cybersecuritytoday/CYBER_SECURITY_TODAY_FEB_17_2023.mp3
+
+title: Patches released for Microsoft Exchange, SAP, Apple and Adobe products
+url: https://traffic.libsyn.com/secure/cybersecuritytoday/CYBER_SECURITY_TODAY_FEB_15_2023.mp3
+
+title:  Hole in GoAnywhere file transfer utility exploited, ransomware attacks in the U.S. and Israel, and more
+url: https://traffic.libsyn.com/secure/cybersecuritytoday/CYBER_SECURITY_TODAY_FEB_13_2023.mp3

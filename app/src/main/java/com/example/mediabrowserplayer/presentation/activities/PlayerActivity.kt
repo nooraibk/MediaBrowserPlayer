@@ -1,9 +1,14 @@
 package com.example.mediabrowserplayer.presentation.activities
 
+import android.content.Context
 import android.content.IntentFilter
+import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
 import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeEvents
@@ -12,11 +17,10 @@ import com.example.mediabrowserplayer.core.showToast
 import com.example.mediabrowserplayer.databinding.ActivityPlayerBinding
 import com.example.mediabrowserplayer.presentation.bases.BaseActivity
 import com.example.mediabrowserplayer.utils.MediaController
+import com.example.mediabrowserplayer.utils.MediaController.getSystemVolume
+import com.example.mediabrowserplayer.utils.MediaController.setSystemVolume
 
 class PlayerActivity : BaseActivity(), VolumeChangeEvents {
-
-//    private lateinit var mediaBrowser: MediaBrowserCompat
-//    private lateinit var mediaController: MediaControllerCompat
 
     private lateinit var binding : ActivityPlayerBinding
     private var eventsListener: MediaPlaybackServiceEvents? = null
@@ -27,22 +31,9 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
     }
 
     override fun isVolumeChanged(){
-        showToast("volume changed")
-        MediaController.getSystemVolume()?.observe(this){
-
-            binding.volumeProgress.progress = it
-            Log.d("LiveVolumeProgress", it.toString())
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        unregisterReceiver(volumeReceiver)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        registerReceiver(volumeReceiver, volumeIntentFilter)
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        val volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        binding.volumeProgress.progress = volume
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,33 +61,37 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
             MediaController.increaseVolume()
         }
 
+        binding.volumeProgress.progress = getSystemVolumeInPlayer()
+
         binding.volumeDown.setOnClickListener {
             MediaController.decreaseVolume()
         }
 
-        MediaController.getSystemVolume()?.observe(this){
-
+        getSystemVolume()?.observe(this){
             binding.volumeProgress.progress = it
-            Log.d("LiveVolumeProgress", it.toString())
         }
 
+        binding.volumeProgress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                setSystemVolume(progress)
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+        registerReceiver(volumeReceiver, volumeIntentFilter)
     }
 
     override fun isSuccessfulConnectionEvent() {
         super.isSuccessfulConnectionEvent()
-        Log.d("CurrentTrackTAGONresume", MediaController.getCurrentTrack().toString())
         updateMeta(MediaController.isPlaying)
-    }
-
-    override fun isMediaActionPlay() {
-        super.isMediaActionPlay()
-        Log.d("PlayerMedia", "Action Playing")
     }
 
     override fun isMediaActionStop() {
         super.isMediaActionStop()
-        Log.d("PlayerMedia", "Action Stop")
         binding.btnPlay.isVisible = true
         binding.btnStop.isVisible = false
     }
@@ -106,19 +101,9 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
         updateMeta(true)
     }
 
-    override fun isPlayerStateIdle() {
-        super.isPlayerStateIdle()
-        showToast("Player state idle")
-    }
-
-    override fun isPlayerStateBuffering() {
-        super.isPlayerStateBuffering()
-        showToast("Player state buffering")
-    }
-
-    override fun isPlayerStateEnded() {
-        super.isPlayerStateEnded()
-        showToast("Player state ended")
+    private fun getSystemVolumeInPlayer() : Int{
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        return audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
     }
 
     private fun updateMeta(isPlaying : Boolean) {

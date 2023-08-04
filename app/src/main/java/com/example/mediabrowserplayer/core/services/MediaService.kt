@@ -50,7 +50,9 @@ class MediaService : MediaBrowserServiceCompat() {
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
     var tracksList = mutableListOf<Track>()
+    var podcastsList = mutableListOf<Track>()
     private var currentTrackIndex = 0
+    private var currentPodcastIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
@@ -172,21 +174,26 @@ class MediaService : MediaBrowserServiceCompat() {
 
     private fun stopService() {
 
-        currentTrackIndex = 0
-
-        isForeground = false
-        isPlaying = false
         stopPlayer()
-        if (isRadio) {
-            tracksList.clear()
-            isForeground = false
-            isPlaying = false
-        } else {
+        stopForeground(STOP_FOREGROUND_DETACH)
+        notificationManager?.cancelAll()
+
+//        currentTrackIndex = 0
+//
+//        isForeground = false
+//        isPlaying = false
+//        stopPlayer()
+//        if (isRadio) {
+//            tracksList.clear()
+//            isForeground = false
+//            isPlaying = false
+//        } else {
 //            pauseRadio()
 //            radioQueue.clear()
 //            notificationManager?.cancelAll()
-        }
+//        }
     }
+
 
     private val playerEventListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -233,7 +240,13 @@ class MediaService : MediaBrowserServiceCompat() {
                 Util.getUserAgent(this@MediaService, getString(R.string.app_name))
             )
 
-            val mediaItem = MediaItem.Builder().setUri(Uri.parse(tracksList[currentTrackIndex].url)).build()
+            val mediaItemSource : String = if (isRadio){
+                tracksList[currentTrackIndex].url
+            }else{
+                podcastsList[currentPodcastIndex].url
+            }
+
+            val mediaItem = MediaItem.Builder().setUri(mediaItemSource).build()
 
             val mediaSource =
                 ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
@@ -254,6 +267,7 @@ class MediaService : MediaBrowserServiceCompat() {
             isPlaying = false
             exoPlayer.playWhenReady = false
             playingNotification?.setPlaying(false)
+            startForegroundOrNotify()
             sendMediaBroadcast(ACTION_STOP)
             super.onStop()
         }
@@ -326,30 +340,20 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
-    fun currentTrack(): Track {
-        try {
-            if (tracksList.isEmpty()) {
-                return Track()
-            }
-            return tracksList[currentTrackIndex]
-        } catch (e: Exception) {
-            Log.d(TAG, "${e.printStackTrace()} ")
-            if (tracksList.isEmpty()) {
-                return Track()
-            }
-            return Track()
-        }
-    }
-
     fun sendMediaBroadcast(change: String) {
         val intent = Intent(change)
         sendBroadcast(intent)
     }
 
     fun playTrack() {
-        Log.d("MEDIASERVICEFROMSERVICE", "playtrack function")
-        if (currentTrackIndex>=0 && currentTrackIndex <= tracksList.size-1){
-            mediaSessionCallback.onPlay()
+        if (isRadio){
+            if (currentTrackIndex>=0 && currentTrackIndex <= tracksList.size-1){
+                mediaSessionCallback.onPlay()
+            }
+        }else{
+            if (currentPodcastIndex>=0 && currentPodcastIndex <= podcastsList.size-1){
+                mediaSessionCallback.onPlay()
+            }
         }
     }
 
@@ -371,7 +375,6 @@ class MediaService : MediaBrowserServiceCompat() {
 
     fun setTracks(tracks: List<Track>) {
         tracksList = tracks as MutableList<Track>
-        Log.d("TracksListOnSetTracks", tracksList.size.toString())
     }
 
     fun setCurrentTrackIndex(trackIndex: Int) {
@@ -380,7 +383,47 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
-    fun getSystemVolume() : Int{
+    fun currentTrack(): Track {
+        try {
+            if (tracksList.isEmpty()) {
+                return Track()
+            }
+            return tracksList[currentTrackIndex]
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.printStackTrace()} ")
+            if (tracksList.isEmpty()) {
+                return Track()
+            }
+            return Track()
+        }
+    }
+
+    fun setPodcasts(podcasts: List<Track>){
+        podcastsList = podcasts as MutableList<Track>
+    }
+
+    fun setCurrentPodcastIndex(podcastIndex: Int) {
+        if (podcastIndex >= 0 && podcastIndex <= podcastsList.size) {
+            currentPodcastIndex = podcastIndex
+        }
+    }
+
+    fun currentPodcast(): Track {
+        try {
+            if (podcastsList.isEmpty()) {
+                return Track()
+            }
+            return podcastsList[currentPodcastIndex]
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.printStackTrace()} ")
+            if (podcastsList.isEmpty()) {
+                return Track()
+            }
+            return Track()
+        }
+    }
+
+    private fun getSystemVolume() : Int{
         val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         _liveSystemVolume.value = systemVolume
         return systemVolume
@@ -402,5 +445,9 @@ class MediaService : MediaBrowserServiceCompat() {
         _liveSystemVolume.value = getSystemVolume()
     }
 
-
+    fun setVolume(volume: Int){
+        if (volume in 0..15) {
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
+        }
+    }
 }

@@ -21,13 +21,24 @@ class MainActivity : BaseActivity() {
         binding.rvTracks.layoutManager = LinearLayoutManager(this)
 
         val adapter = TracksRecyclerView {
-            MediaController.setTracksQueue(viewModel.tracks)
-            MediaController.setCurrentTrack(it)
-            MediaController.playTrack()
+//            initRadios(it)
+            initPodcasts(it)
             startActivity(Intent(this@MainActivity, PlayerActivity::class.java))
         }
         adapter.setTracksData(viewModel.tracks)
         binding.rvTracks.adapter = adapter
+    }
+
+    private fun initRadios(position: Int) {
+        MediaController.setTracksQueue(viewModel.tracks)
+        MediaController.setCurrentTrack(position)
+        MediaController.playTrack()
+    }
+
+    private fun initPodcasts(position: Int) {
+        MediaController.setPodcastsQueue(viewModel.podcasts)
+        MediaController.setCurrentPodcast(position)
+        MediaController.playTrack()
     }
 
 }

@@ -28,6 +28,7 @@ import com.example.mediabrowserplayer.utils.ACTION_QUIT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_PREVIOUS
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
+import com.example.mediabrowserplayer.utils.MediaController.isPlaying
 
 @SuppressLint("RestrictedApi")
 class PlayingNotificationImpl24(
@@ -65,17 +66,21 @@ class PlayingNotificationImpl24(
             context.getString(R.string.action_cancel),
             retrievePlaybackAction(ACTION_QUIT)
         )
+        setOngoing(true)
         setSmallIcon(R.drawable.ic_app)
         setContentIntent(clickIntent)
         setDeleteIntent(deleteIntent)
         setCategory(NotificationCompat.CATEGORY_TRANSPORT)
         setShowWhen(false)
+
 //        addAction(toggleFavorite)
         addAction(previousAction)
         addAction(playPauseAction)
         addAction(nextAction)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            addAction(dismissAction)
+//        }
         addAction(dismissAction)
-
 
         setStyle(
             MediaStyle().setMediaSession(mediaSessionToken).setShowActionsInCompactView(0, 1, 2)
@@ -83,18 +88,13 @@ class PlayingNotificationImpl24(
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
     }
 
-    private fun getCombinedRemoteViews(collapsed: Boolean, track: Track): RemoteViews {
-        val remoteViews = RemoteViews(
-            context.packageName,
-            if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
-        )
-//        remoteViews.setTextViewText(
-//            R.id.appName, context.getString(R.string.app_name)
-//        )
-        remoteViews.setTextViewText(R.id.title, track.title)
-        remoteViews.setTextViewText(R.id.subtitle, track.description)
-//        linkButtons(remoteViews)
-        return remoteViews
+    private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
+        val playButtonResId = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        return NotificationCompat.Action.Builder(
+            playButtonResId,
+            context.getString(R.string.action_play_pause),
+            retrievePlaybackAction(ACTION_TOGGLE_PAUSE)
+        ).build()
     }
 
     override fun updateMetadata(track: Track, onUpdate: () -> Unit) {
@@ -145,15 +145,6 @@ class PlayingNotificationImpl24(
 //        setOngoing(true)
     }
 
-    private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
-        val playButtonResId = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-        return NotificationCompat.Action.Builder(
-            playButtonResId,
-            context.getString(R.string.action_play_pause),
-            retrievePlaybackAction(ACTION_TOGGLE_PAUSE)
-        ).build()
-    }
-
     override fun setPlaying(isPlaying: Boolean) {
         mActions[1] = buildPlayAction(isPlaying)
     }
@@ -165,6 +156,20 @@ class PlayingNotificationImpl24(
         return PendingIntent.getService(
             context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    private fun getCombinedRemoteViews(collapsed: Boolean, track: Track): RemoteViews {
+        val remoteViews = RemoteViews(
+            context.packageName,
+            if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
+        )
+//        remoteViews.setTextViewText(
+//            R.id.appName, context.getString(R.string.app_name)
+//        )
+        remoteViews.setTextViewText(R.id.title, track.title)
+        remoteViews.setTextViewText(R.id.subtitle, track.description)
+//        linkButtons(remoteViews)
+        return remoteViews
     }
 
     companion object {

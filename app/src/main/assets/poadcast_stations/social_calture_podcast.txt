@@ -1,0 +1,49 @@
+>> The Rest Is History
+
+306.
+title: Columbus: A New World?
+url: https://sphinx.acast.com/p/acast/s/the-rest-is-history-podcast/e/63f3a9771a630700112ccb59/media.mp3
+
+305.
+title: The Fall of the Roman Republic
+url: https://sphinx.acast.com/p/acast/s/the-rest-is-history-podcast/e/63e9232f994354001107010f/media.mp3
+
+304.
+title: The Murder of Julius Caesar
+url: https://sphinx.acast.com/p/acast/s/the-rest-is-history-podcast/e/63e9210ba8620900105b8e1c/media.mp3
+
+303.
+title: The Bloodiest Crusade
+url: https://sphinx.acast.com/p/acast/s/the-rest-is-history-podcast/e/63dd4b1fd9b3af001084d0b5/media.mp3
+
+302.
+title: The Mystery of the Cathars
+url: https://sphinx.acast.com/p/acast/s/the-rest-is-history-podcast/e/63dd62b950f7d30010733488/media.mp3
+
+
+>> Then and Now: Global History and Culture
+
+title: WWII: One War Ends and Another Begins, 8 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Eight_1.mp3
+
+title: WWII: Battles Fought at the Homefront, 7 of 8
+url:https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Seven.mp3
+
+title: WWII: Pacific Theater, 6 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Six.mp3
+
+title: WWII: Battle of Stalingrad, 5 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WWs_Two_Part_Five.mp3
+
+title: WWII: D-Day Invasion of Europe, 4 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Four_1.mp3
+
+title: WWII: Air Battle of Britain, 3 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Three.mp3
+
+title: WWII: Key Turning Points, 2 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_Two.mp3
+
+title: WWII: Overview of WWII, 1 of 8
+url: https://traffic.libsyn.com/secure/thenandnow/WW_Two_Part_One_1.mp3
+
