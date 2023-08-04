@@ -7,13 +7,18 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.example.mediabrowserplayer.presentation.activities.PlayerActivity
 import com.example.mediabrowserplayer.R
@@ -63,14 +68,14 @@ class PlayingNotificationImpl24(
         setSmallIcon(R.drawable.ic_app)
         setContentIntent(clickIntent)
         setDeleteIntent(deleteIntent)
+        setCategory(NotificationCompat.CATEGORY_TRANSPORT)
         setShowWhen(false)
 //        addAction(toggleFavorite)
         addAction(previousAction)
         addAction(playPauseAction)
         addAction(nextAction)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            addAction(dismissAction)
-        }
+        addAction(dismissAction)
+
 
         setStyle(
             MediaStyle().setMediaSession(mediaSessionToken).setShowActionsInCompactView(0, 1, 2)
@@ -92,27 +97,52 @@ class PlayingNotificationImpl24(
         return remoteViews
     }
 
-    override fun updateMetadata(track: Track) {
+    override fun updateMetadata(track: Track, onUpdate: () -> Unit) {
         val notificationLayout = getCombinedRemoteViews(true, track)
         val notificationLayoutBig = getCombinedRemoteViews(false, track)
 
         setContentTitle(track.title)
         setContentText(track.description)
 
-        Glide.with(context)
-            .asBitmap()
-            .load(track.logo)
-            .placeholder(R.drawable.ic_app)
-            .into(object : SimpleTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    setLargeIcon(resource)
-                }
-            })
+        val request = Glide.with(context).asBitmap().load(track.logo)
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).skipMemoryCache(true)
+        request.into(object : CustomTarget<Bitmap?>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+            override fun onLoadFailed(errorDrawable: Drawable?) {
+                super.onLoadFailed(errorDrawable)
+                setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        context.resources,
+                        R.drawable.ic_app
+                    )
+                )
+                onUpdate.invoke()
+
+            }
+
+            override fun onResourceReady(
+                resource: Bitmap,
+                transition: Transition<in Bitmap?>?,
+            ) {
+                setLargeIcon(resource)
+                onUpdate.invoke()
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+                setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        context.resources,
+                        R.drawable.ic_app
+                    )
+                )
+                onUpdate.invoke()
+
+            }
+        })
 
 //        setCustomContentView(notificationLayout)
 //        setCustomBigContentView(notificationLayoutBig)
-        setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
-        setOngoing(true)
+//        setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
+//        setOngoing(true)
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {

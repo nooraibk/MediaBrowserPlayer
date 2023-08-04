@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -29,6 +30,7 @@ import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_NEXT
 import com.example.mediabrowserplayer.utils.ACTION_SKIP_TO_PREVIOUS
 import com.example.mediabrowserplayer.utils.ACTION_STOP
 import com.example.mediabrowserplayer.utils.ACTION_TOGGLE_PAUSE
+import com.example.mediabrowserplayer.utils.META_CHANGED
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_ENDED
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_IDLE
@@ -174,7 +176,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
         isForeground = false
         isPlaying = false
-        stopForeground(true)
+        stopPlayer()
         if (isRadio) {
             tracksList.clear()
             isForeground = false
@@ -309,7 +311,19 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     private fun updateNotification(track : Track){
-        playingNotification?.updateMetadata(track)
+        playingNotification?.updateMetadata(track){
+            Log.d(TAG, "updateNotification: meta")
+            startForegroundOrNotify()
+            sendMediaBroadcast(META_CHANGED)
+            val metaData = MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.description)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, track.description)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.logo)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, -1)
+
+            mediaSession?.setMetadata(metaData.build())
+        }
     }
 
     fun currentTrack(): Track {

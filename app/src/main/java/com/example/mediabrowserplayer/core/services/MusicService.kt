@@ -763,7 +763,7 @@
 //        mediaSessionCallback.onSeekTo(pos)
 //    }
 //
-//    private fun updateMediaSessionMetaData(onMetadataSet: () -> Unit) {
+//    private fun updateMediaSessionMetaData(on`Metadata`Set: () -> Unit) {
 //        val song = currentSong
 //        if (song.id == -1L) {
 //            mediaSession?.setMetadata(null)
