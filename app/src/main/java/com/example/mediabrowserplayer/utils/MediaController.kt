@@ -8,8 +8,8 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
-import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.core.services.MediaService
+import com.example.mediabrowserplayer.data.Track
 import java.util.WeakHashMap
 
 object MediaController {
@@ -57,7 +57,7 @@ object MediaController {
 
     @JvmStatic
     val isPlaying: Boolean
-        get() = mediaService != null && mediaService!!.isPlaying
+        get() = mediaService != null && mediaService!!.checkIfPlaying
 
     class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -106,18 +106,6 @@ object MediaController {
 
     fun getCurrentTrack() : Track?{
         return mediaService?.currentTrack()
-    }
-
-    fun setPodcastsQueue(podcasts : List<Track>){
-        mediaService?.setPodcasts(podcasts)
-    }
-
-    fun setCurrentPodcast(index : Int){
-        mediaService?.setCurrentPodcastIndex(index)
-    }
-
-    fun getCurrentPodcast() : Track?{
-        return mediaService?.currentPodcast()
     }
 
     fun getSystemVolume() = mediaService?.liveSystemVolume

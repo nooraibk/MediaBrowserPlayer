@@ -4,7 +4,6 @@ import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
@@ -50,16 +49,13 @@ class MediaService : MediaBrowserServiceCompat() {
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaController: MediaControllerCompat
     var tracksList = mutableListOf<Track>()
-    var podcastsList = mutableListOf<Track>()
     private var currentTrackIndex = 0
-    private var currentPodcastIndex = 0
     private val iBinder = MusicBinder()
     private var playingNotification: PlayingNotification? = null
     private var notificationManager: NotificationManager? = null
-    private var isForeground = false
-    var isPlaying = false
+    private var checkIfForeground = false
+    var checkIfPlaying = false
     private lateinit var audioManager : AudioManager
-    private var isRadio = true
 
     private var _liveSystemVolume = MutableLiveData<Int>()
     val liveSystemVolume : LiveData<Int> get() = _liveSystemVolume
@@ -93,56 +89,36 @@ class MediaService : MediaBrowserServiceCompat() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null && intent.action != null) {
 
-            if (isRadio) {
-                when (intent.action) {
-                    ACTION_TOGGLE_PAUSE -> if (isPlaying) {
-                        Log.d("NotificationTAG", "toggle stop player requested")
-                        stopPlayer()
-                    } else {
-                        Log.d("NotificationTAG", "toggle start player requested")
-                        playTrack()
-                    }
-
-                    ACTION_PAUSE -> {
-                        Log.d("NotificationTAG", "stop player requested")
-                        stopPlayer()
-                    }
-                    ACTION_PLAY -> {
-                        Log.d("NotificationTAG", "start player requested")
-                        playTrack()
-                    }
-                    ACTION_SKIP_TO_PREVIOUS -> {
-                        Log.d("NotificationTAG", "previous player requested")
-                        prevTrack()
-                    }
-                    ACTION_SKIP_TO_NEXT -> {
-                        Log.d("NotificationTAG", "next player requested")
-                        nextTrack()
-                    }
-                    ACTION_STOP, ACTION_QUIT -> {
-                        Log.d("NotificationTAG", "quit player requested")
-                        stopService()
-                    }
+            when (intent.action) {
+                ACTION_TOGGLE_PAUSE -> if (checkIfPlaying) {
+                    Log.d("NotificationTAG", "toggle stop player requested")
+                    stopPlayer()
+                } else {
+                    Log.d("NotificationTAG", "toggle start player requested")
+                    playTrack()
                 }
-            } else {
-                when (intent.action) {
-//                    ACTION_TOGGLE_PAUSE -> if (isPlaying) {
-//                        pauseRadio()
-//                    } else {
-//                        playRadio()
-//                    }
-//
-//                    ACTION_PAUSE -> pauseSong()
-//                    ACTION_PLAY -> playRadio()
-//                    ACTION_REWIND -> radioSkipToPrevious()
-//                    ACTION_SKIP -> radioSkipToNext()
-//                    ACTION_STOP, ACTION_QUIT -> {
-//                        stopService()
-//                    }
+
+                ACTION_PAUSE -> {
+                    Log.d("NotificationTAG", "stop player requested")
+                    stopPlayer()
+                }
+                ACTION_PLAY -> {
+                    Log.d("NotificationTAG", "start player requested")
+                    playTrack()
+                }
+                ACTION_SKIP_TO_PREVIOUS -> {
+                    Log.d("NotificationTAG", "previous player requested")
+                    prevTrack()
+                }
+                ACTION_SKIP_TO_NEXT -> {
+                    Log.d("NotificationTAG", "next player requested")
+                    nextTrack()
+                }
+                ACTION_STOP, ACTION_QUIT -> {
+                    Log.d("NotificationTAG", "quit player requested")
+                    stopService()
                 }
             }
-
-
         }
 
         return START_NOT_STICKY
@@ -227,7 +203,7 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         override fun onPlayerError(error: PlaybackException) {
-            isPlaying = false
+            checkIfPlaying = false
             super.onPlayerError(error)
 
         }
@@ -240,31 +216,27 @@ class MediaService : MediaBrowserServiceCompat() {
                 Util.getUserAgent(this@MediaService, getString(R.string.app_name))
             )
 
-            val mediaItemSource : String = if (isRadio){
-                tracksList[currentTrackIndex].url
-            }else{
-                podcastsList[currentPodcastIndex].url
-            }
+            val mediaItemSource = tracksList[currentTrackIndex].url
 
             val mediaItem = MediaItem.Builder().setUri(mediaItemSource).build()
 
             val mediaSource =
                 ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
-            if (!isPlaying) {
+            if (!checkIfPlaying) {
                 exoPlayer.setMediaSource(mediaSource)
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
-                isPlaying = true
+                checkIfPlaying = true
             }else{
                 onStop()
                 onPlay()
             }
-            Log.d("MediaServiceTAG", "onPlayStatus : $isPlaying currentTrackIndex $currentTrackIndex")
+            Log.d("MediaServiceTAG", "onPlayStatus : $checkIfPlaying currentTrackIndex $currentTrackIndex")
             sendBroadcast(Intent(ACTION_PLAY))
         }
 
         override fun onStop() {
-            isPlaying = false
+            checkIfPlaying = false
             exoPlayer.playWhenReady = false
             playingNotification?.setPlaying(false)
             startForegroundOrNotify()
@@ -273,28 +245,31 @@ class MediaService : MediaBrowserServiceCompat() {
         }
 
         override fun onPause() {
-            isPlaying = false
+            checkIfPlaying = false
             exoPlayer.playWhenReady = false
             exoPlayer.pause()
             sendMediaBroadcast(ACTION_PAUSE)
         }
 
         override fun onSkipToNext() {
-            if (currentTrackIndex >= 0 && currentTrackIndex < tracksList.size-1) {
+
+            if (currentTrackIndex >= 0 && currentTrackIndex < tracksList.size - 1) {
                 currentTrackIndex += 1
                 onStop()
                 onPlay()
                 sendMediaBroadcast(ACTION_SKIP_TO_NEXT)
             }
+
         }
 
         override fun onSkipToPrevious() {
-            if (currentTrackIndex > 0 && currentTrackIndex <= tracksList.size-1) {
+            if (currentTrackIndex > 0 && currentTrackIndex <= tracksList.size - 1) {
                 currentTrackIndex -= 1
                 onStop()
                 onPlay()
                 sendMediaBroadcast(ACTION_SKIP_TO_PREVIOUS)
             }
+
         }
 
         override fun onSeekTo(pos: Long) {
@@ -304,8 +279,8 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     private fun startForegroundOrNotify() {
-        if (!isForeground) {
-            isForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (!checkIfForeground) {
+            checkIfForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(
                     PlayingNotification.NOTIFICATION_ID,
                     playingNotification!!.build(),
@@ -346,14 +321,8 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     fun playTrack() {
-        if (isRadio){
-            if (currentTrackIndex>=0 && currentTrackIndex <= tracksList.size-1){
-                mediaSessionCallback.onPlay()
-            }
-        }else{
-            if (currentPodcastIndex>=0 && currentPodcastIndex <= podcastsList.size-1){
-                mediaSessionCallback.onPlay()
-            }
+        if (currentTrackIndex in 0 until tracksList.size) {
+            mediaSessionCallback.onPlay()
         }
     }
 
@@ -384,42 +353,15 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     fun currentTrack(): Track {
-        try {
-            if (tracksList.isEmpty()) {
-                return Track()
+        return try {
+            if (tracksList.isNotEmpty() && currentTrackIndex >= 0 && currentTrackIndex < tracksList.size) {
+                tracksList[currentTrackIndex]
+            } else {
+                Track()
             }
-            return tracksList[currentTrackIndex]
         } catch (e: Exception) {
             Log.d(TAG, "${e.printStackTrace()} ")
-            if (tracksList.isEmpty()) {
-                return Track()
-            }
-            return Track()
-        }
-    }
-
-    fun setPodcasts(podcasts: List<Track>){
-        podcastsList = podcasts as MutableList<Track>
-    }
-
-    fun setCurrentPodcastIndex(podcastIndex: Int) {
-        if (podcastIndex >= 0 && podcastIndex <= podcastsList.size) {
-            currentPodcastIndex = podcastIndex
-        }
-    }
-
-    fun currentPodcast(): Track {
-        try {
-            if (podcastsList.isEmpty()) {
-                return Track()
-            }
-            return podcastsList[currentPodcastIndex]
-        } catch (e: Exception) {
-            Log.d(TAG, "${e.printStackTrace()} ")
-            if (podcastsList.isEmpty()) {
-                return Track()
-            }
-            return Track()
+            Track()
         }
     }
 

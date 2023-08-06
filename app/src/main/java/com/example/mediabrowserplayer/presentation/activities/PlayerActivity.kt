@@ -1,19 +1,15 @@
 package com.example.mediabrowserplayer.presentation.activities
 
-import android.content.Context
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.SeekBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.example.mediabrowserplayer.core.broadcasts.MediaPlaybackServiceEvents
 import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeEvents
 import com.example.mediabrowserplayer.core.broadcasts.VolumeChangeReceiver
-import com.example.mediabrowserplayer.core.showToast
 import com.example.mediabrowserplayer.databinding.ActivityPlayerBinding
 import com.example.mediabrowserplayer.presentation.bases.BaseActivity
 import com.example.mediabrowserplayer.utils.MediaController
