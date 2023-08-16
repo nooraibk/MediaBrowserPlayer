@@ -1,6 +1,5 @@
 package com.example.mediabrowserplayer.presentation.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +9,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediabrowserplayer.R
+import com.example.mediabrowserplayer.core.dip
 import com.example.mediabrowserplayer.data.Track
 import com.example.mediabrowserplayer.databinding.ActivityMainBinding
-import com.example.mediabrowserplayer.presentation.adapters.TracksRecyclerView
 import com.example.mediabrowserplayer.presentation.bases.BaseActivity
 import com.example.mediabrowserplayer.presentation.fragments.MiniPlayerFragment
 import com.example.mediabrowserplayer.presentation.fragments.PlayerFragment
@@ -24,7 +22,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class MainActivity : BaseActivity() {
 
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     private var playerFragment: PlayerFragment? = null
     private var playingQueueFragment: RadiosFragment? = null
@@ -57,21 +55,26 @@ class MainActivity : BaseActivity() {
 //                        keepScreenOn(true)
 //                    }
                 }
+
                 BottomSheetBehavior.STATE_COLLAPSED -> {
                     onPanelCollapsed()
 //                    if ((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) {
 //                        keepScreenOn(false)
 //                    }
                 }
+
                 BottomSheetBehavior.STATE_SETTLING, BottomSheetBehavior.STATE_DRAGGING -> {
                     if (fromNotification) {
 //                        binding.bottomNavigationView.bringToFront()
                         fromNotification = false
                     }
                 }
+
                 BottomSheetBehavior.STATE_HIDDEN -> {
 //                    MusicPlayerRemote.clearQueue()
+                    MediaController.clearQueue()
                 }
+
                 else -> {
                     println("Do a flip")
                 }
@@ -113,7 +116,6 @@ class MainActivity : BaseActivity() {
 //        adapter.setTracksData(viewModel.podcasts)
 ////        adapter.setTracksData(viewModel.tracks)
 //        binding.rvTracks.adapter = adapter
-
 
 
     }
@@ -181,10 +183,38 @@ class MainActivity : BaseActivity() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
-    private fun initTracks(position: Int, tracks : List<Track>) {
+    private fun initTracks(position: Int, tracks: List<Track>) {
         MediaController.setTracksQueue(tracks)
         MediaController.setCurrentTrack(position)
         MediaController.playTrack()
+    }
+
+    override fun isSuccessfulConnectionEvent() {
+        super.isSuccessfulConnectionEvent()
+        if (!MediaController.isQueueEmpty()) {
+            bottomSheetBehavior.setPeekHeight(dip(R.dimen.mini_player_height), true)
+        }
+    }
+
+    override fun isMediaActionPlay() {
+        super.isMediaActionPlay()
+
+    }
+
+    override fun isPlayingQueueChangeEvent() {
+        super.isPlayingQueueChangeEvent()
+        if (MediaController.isQueueEmpty()) {
+            bottomSheetBehavior.setPeekHeight(0, true)
+        } else {
+            if (bottomSheetBehavior.peekHeight != dip(R.dimen.mini_player_height)) {
+                bottomSheetBehavior.setPeekHeight(dip(R.dimen.mini_player_height), true)
+            }
+            expandPanel()
+        }
+    }
+
+    override fun isPlayingMetaChangeEvent() {
+        super.isPlayingMetaChangeEvent()
     }
 
 }

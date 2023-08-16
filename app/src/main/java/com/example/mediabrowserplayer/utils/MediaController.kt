@@ -17,7 +17,7 @@ object MediaController {
     var mediaService: MediaService? = null
     private val connectionMap = WeakHashMap<Context, ControllerServiceBinder>()
 
-    fun bindToService(context: Context, callback: ServiceConnection) : ServiceToken?{
+    fun bindToService(context: Context, callback: ServiceConnection): ServiceToken? {
         Log.d(TAG, "bindToService called")
         val realActivity = (context as Activity).parent ?: context
         val contextWrapper = ContextWrapper(realActivity)
@@ -25,7 +25,7 @@ object MediaController {
         try {
             Log.d(TAG, "Service Started")
             context.startService(intent)
-        }catch (ignored : IllegalStateException){
+        } catch (ignored: IllegalStateException) {
             Log.d(TAG, "Service Exception")
         }
         val binder = ControllerServiceBinder(callback)
@@ -34,7 +34,8 @@ object MediaController {
                 Intent().setClass(contextWrapper, MediaService::class.java),
                 binder,
                 Context.BIND_AUTO_CREATE
-        )){
+            )
+        ) {
             connectionMap[contextWrapper] = binder
             Log.d(TAG, "onServiceBinded")
 
@@ -59,7 +60,8 @@ object MediaController {
     val isPlaying: Boolean
         get() = mediaService != null && mediaService!!.checkIfPlaying
 
-    class ControllerServiceBinder internal constructor(private val callback : ServiceConnection?) : ServiceConnection{
+    class ControllerServiceBinder internal constructor(private val callback: ServiceConnection?) :
+        ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(TAG, "onServiceConnected")
             val binder = service as MediaService.MusicBinder
@@ -74,43 +76,49 @@ object MediaController {
         }
     }
 
-    class ServiceToken internal constructor(internal var mWrapperContext : ContextWrapper)
+    class ServiceToken internal constructor(internal var mWrapperContext: ContextWrapper)
 
-    fun playTrack(){
+    fun playTrack() {
         mediaService?.playTrack()
     }
 
-    fun stopPlayer(){
+    fun isQueueEmpty(): Boolean = mediaService?.isQueueEmpty() ?: true
+
+    fun clearQueue(){
+        mediaService?.clearQueue()
+    }
+
+    fun stopPlayer() {
         mediaService?.stopPlayer()
     }
 
-    fun pauseTrack(){
+    fun pauseTrack() {
         mediaService?.pauseTrack()
     }
 
-    fun playNextTrack(){
+    fun playNextTrack() {
         mediaService?.nextTrack()
     }
 
-    fun playPreviousTrack(){
+    fun playPreviousTrack() {
         mediaService?.prevTrack()
     }
 
-    fun setTracksQueue(tracks : List<Track>){
+    fun setTracksQueue(tracks: List<Track>) {
         mediaService?.setTracks(tracks)
     }
 
-    fun setCurrentTrack(index : Int){
+    fun setCurrentTrack(index: Int) {
         mediaService?.setCurrentTrackIndex(index)
     }
 
-    fun getCurrentTrack() : Track?{
+    fun getCurrentTrack(): Track? {
         return mediaService?.currentTrack()
     }
 
     fun getSystemVolume() = mediaService?.liveSystemVolume
 
-    fun setSystemVolume(volume : Int) = mediaService?.setVolume(volume)
+    fun setSystemVolume(volume: Int) = mediaService?.setVolume(volume)
 
     fun increaseVolume() = mediaService?.volumeUp()
 

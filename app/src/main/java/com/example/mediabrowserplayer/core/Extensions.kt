@@ -1,10 +1,12 @@
 package com.example.mediabrowserplayer.core
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -22,4 +24,7 @@ fun Drawable.tint(@ColorInt color: Int): Drawable {
 
 fun Context.showToast(text:String){
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+}
+fun Activity.dip(@DimenRes id: Int): Int {
+    return resources.getDimensionPixelSize(id)
 }

@@ -34,6 +34,7 @@ import com.example.mediabrowserplayer.utils.PLAYER_STATE_BUFFERING
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_ENDED
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_IDLE
 import com.example.mediabrowserplayer.utils.PLAYER_STATE_READY
+import com.example.mediabrowserplayer.utils.QUEUE_CHANGED
 import com.example.mediabrowserplayer.utils.TAG
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -55,10 +56,10 @@ class MediaService : MediaBrowserServiceCompat() {
     private var notificationManager: NotificationManager? = null
     private var checkIfForeground = false
     var checkIfPlaying = false
-    private lateinit var audioManager : AudioManager
+    private lateinit var audioManager: AudioManager
 
     private var _liveSystemVolume = MutableLiveData<Int>()
-    val liveSystemVolume : LiveData<Int> get() = _liveSystemVolume
+    val liveSystemVolume: LiveData<Int> get() = _liveSystemVolume
 
 //    private val mediaSessionCallback = MediaSessionCallback(applicationContext, this)
 
@@ -102,18 +103,22 @@ class MediaService : MediaBrowserServiceCompat() {
                     Log.d("NotificationTAG", "stop player requested")
                     stopPlayer()
                 }
+
                 ACTION_PLAY -> {
                     Log.d("NotificationTAG", "start player requested")
                     playTrack()
                 }
+
                 ACTION_SKIP_TO_PREVIOUS -> {
                     Log.d("NotificationTAG", "previous player requested")
                     prevTrack()
                 }
+
                 ACTION_SKIP_TO_NEXT -> {
                     Log.d("NotificationTAG", "next player requested")
                     nextTrack()
                 }
+
                 ACTION_STOP, ACTION_QUIT -> {
                     Log.d("NotificationTAG", "quit player requested")
                     stopService()
@@ -227,11 +232,14 @@ class MediaService : MediaBrowserServiceCompat() {
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
                 checkIfPlaying = true
-            }else{
+            } else {
                 onStop()
                 onPlay()
             }
-            Log.d("MediaServiceTAG", "onPlayStatus : $checkIfPlaying currentTrackIndex $currentTrackIndex")
+            Log.d(
+                "MediaServiceTAG",
+                "onPlayStatus : $checkIfPlaying currentTrackIndex $currentTrackIndex"
+            )
             sendBroadcast(Intent(ACTION_PLAY))
         }
 
@@ -299,8 +307,8 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
-    private fun updateNotification(track : Track){
-        playingNotification?.updateMetadata(track){
+    private fun updateNotification(track: Track) {
+        playingNotification?.updateMetadata(track) {
             Log.d(TAG, "updateNotification: meta")
             startForegroundOrNotify()
             sendMediaBroadcast(META_CHANGED)
@@ -330,6 +338,13 @@ class MediaService : MediaBrowserServiceCompat() {
         mediaSessionCallback.onStop()
     }
 
+    fun clearQueue(){
+        tracksList.clear()
+        stopPlayer()
+        stopForeground(STOP_FOREGROUND_DETACH)
+        notificationManager?.cancelAll()
+    }
+
     fun pauseTrack() {
         mediaSessionCallback.onPause()
     }
@@ -343,6 +358,7 @@ class MediaService : MediaBrowserServiceCompat() {
     }
 
     fun setTracks(tracks: List<Track>) {
+        sendMediaBroadcast(QUEUE_CHANGED)
         tracksList = tracks as MutableList<Track>
     }
 
@@ -351,6 +367,8 @@ class MediaService : MediaBrowserServiceCompat() {
             currentTrackIndex = trackIndex
         }
     }
+
+    fun isQueueEmpty(): Boolean = tracksList.isEmpty()
 
     fun currentTrack(): Track {
         return try {
@@ -365,29 +383,29 @@ class MediaService : MediaBrowserServiceCompat() {
         }
     }
 
-    private fun getSystemVolume() : Int{
+    private fun getSystemVolume(): Int {
         val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         _liveSystemVolume.value = systemVolume
         return systemVolume
     }
 
-    fun volumeDown(){
+    fun volumeDown() {
         val reducedVolume = getSystemVolume().minus(1)
-        if (reducedVolume in 1..100){
+        if (reducedVolume in 1..100) {
             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, reducedVolume, 0)
         }
         _liveSystemVolume.value = getSystemVolume()
     }
 
-    fun volumeUp(){
+    fun volumeUp() {
         val increasedVolume = getSystemVolume().plus(1)
-        if (increasedVolume in 1..100){
+        if (increasedVolume in 1..100) {
             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, increasedVolume, 0)
         }
         _liveSystemVolume.value = getSystemVolume()
     }
 
-    fun setVolume(volume: Int){
+    fun setVolume(volume: Int) {
         if (volume in 0..15) {
             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
         }
