@@ -5,17 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.provider.MediaStore
 import com.example.mediabrowserplayer.presentation.activities.PlayerActivity
+import com.example.mediabrowserplayer.presentation.fragments.PlayerFragment
 import java.lang.ref.WeakReference
 
-class VolumeChangeReceiver(activity: PlayerActivity) : BroadcastReceiver() {
+class VolumeChangeReceiver(fragment: PlayerFragment) : BroadcastReceiver() {
 
-    private val reference: WeakReference<PlayerActivity> = WeakReference(activity)
+    private val reference: WeakReference<PlayerFragment> = WeakReference(fragment)
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val activity = reference.get()
         if (intent?.action == "android.media.VOLUME_CHANGED_ACTION") {
 
-//            context?.getSystemService(MediaService::class.java)?.isVolumeChanged()
             activity?.isVolumeChanged()
         }
     }

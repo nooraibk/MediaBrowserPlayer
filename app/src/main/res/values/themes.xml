@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.MediaBrowserPlayer" parent="Base.Theme.MediaBrowserPlayer" />
+
+    <style name="BottomSheetStyle" parent="Widget.Material3.BottomSheet">
+        <item name="paddingBottomSystemWindowInsets">false</item>
+        <item name="android:maxWidth">@empty</item>
+    </style>
+
+    <style name="Theme.Mp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 </resources>

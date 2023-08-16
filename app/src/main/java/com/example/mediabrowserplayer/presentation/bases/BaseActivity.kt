@@ -44,12 +44,12 @@ abstract class BaseActivity : AppCompatActivity(), MediaPlaybackServiceEvents {
 
         serviceToken = MediaController.bindToService(this, object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                Log.d(TAG, "onServiceCallback")
+                Log.d(TAG, "onServiceConnectedCallback")
                 this@BaseActivity.isSuccessfulConnectionEvent()
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-
+                Log.d(TAG, "onServiceDisconnectedCallback")
             }
         })
 

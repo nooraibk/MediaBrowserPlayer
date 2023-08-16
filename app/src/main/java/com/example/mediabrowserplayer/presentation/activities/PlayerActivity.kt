@@ -21,7 +21,7 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
     private lateinit var binding : ActivityPlayerBinding
     private var eventsListener: MediaPlaybackServiceEvents? = null
 
-    private val volumeReceiver = VolumeChangeReceiver(this)
+//    private val volumeReceiver = VolumeChangeReceiver(this)
     private val volumeIntentFilter = IntentFilter().apply {
         addAction("android.media.VOLUME_CHANGED_ACTION")
     }
@@ -78,7 +78,7 @@ class PlayerActivity : BaseActivity(), VolumeChangeEvents {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
-        registerReceiver(volumeReceiver, volumeIntentFilter)
+//        registerReceiver(volumeReceiver, volumeIntentFilter)
     }
 
     override fun isSuccessfulConnectionEvent() {

@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_nav">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/homeFragment">
 
+    <fragment
+        android:id="@+id/radiosFragment"
+        android:name="com.example.mediabrowserplayer.presentation.fragments.RadiosFragment"
+        android:label="fragment_radios"
+        tools:layout="@layout/fragment_radios" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.mediabrowserplayer.presentation.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/podcastsFragment"
+        android:name="com.example.mediabrowserplayer.presentation.fragments.PodcastsFragment"
+        android:label="fragment_podcasts"
+        tools:layout="@layout/fragment_podcasts" />
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.example.mediabrowserplayer.presentation.fragments.PlayerFragment"
+        android:label="fragment_player"
+        tools:layout="@layout/fragment_player" />
 </navigation>
